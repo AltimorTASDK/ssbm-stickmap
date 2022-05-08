@@ -170,12 +170,8 @@ function Region(name)
         elem.selectionEnd = selectionEnd;
     }
 
-    this.containsCoordinate = function(x, y)
+    this.matchesQuadrants = function(x, y)
     {
-        if (!isValidCoordinate(x, y))
-            return false;
-
-        // Check quadrant
         let quadrants = this.quadrants;
 
         if (!quadrants[0] && !quadrants[1] && !quadrants[2] && !quadrants[3])
@@ -203,6 +199,16 @@ function Region(name)
             return false;
 
         if (x > 0 && y < 0 && !quadrants[3])
+            return false;
+    }
+
+    this.containsCoordinate = function(x, y)
+    {
+        if (!isValidCoordinate(x, y))
+            return false;
+
+        // Check quadrant
+        if (!this.matchesQuadrants(x, y))
             return false;
 
         // Check bounds
@@ -236,10 +242,14 @@ function Region(name)
             return false;
 
         if (this.displayMode == DisplayMode.Outline &&
-                this.containsCoordinate(x + 1, y) &&
-                this.containsCoordinate(x, y + 1) &&
-                this.containsCoordinate(x - 1, y) &&
-                this.containsCoordinate(x, y - 1))
+                this.containsCoordinate(x + 1, y    ) &&
+                this.containsCoordinate(x + 1, y + 1) &&
+                this.containsCoordinate(x,     y + 1) &&
+                this.containsCoordinate(x - 1, y + 1) &&
+                this.containsCoordinate(x - 1, y    ) &&
+                this.containsCoordinate(x - 1, y - 1) &&
+                this.containsCoordinate(x,     y - 1) &&
+                this.containsCoordinate(x + 1, y - 1))
             return false;
 
         return this.containsCoordinate(x, y);
@@ -700,6 +710,18 @@ function isValidCoordinate(x, y)
     return x*x + y*y <= CLAMP_RADIUS * CLAMP_RADIUS;
 }
 
+function isVisibleCoordinate(x, y)
+{
+    return x*x + y*y <= DISPLAY_RADIUS * DISPLAY_RADIUS;
+}
+
+function clampCoordinates(x, y)
+{
+    let magnitude = Math.sqrt(x*x + y*y);
+    let scale = Math.min(CLAMP_RADIUS / magnitude, 1.0);
+    return [Math.trunc(x * scale), Math.trunc(y * scale)]
+}
+
 function isRimCoordinate(x, y)
 {
     return !isValidCoordinate(Math.abs(x) + 1, Math.abs(y) + 1);
@@ -750,93 +772,64 @@ function isDesyncCoordinate(x, y)
     return false;
 }
 
-function getCoordinateFillStyle(x, y, clamped)
+function getCoordinateStyle(unclampedX, unclampedY)
 {
-    if (!isValidCoordinate(x, y) || (x == 0 && y == 0))
-        return "black";
+    if (!isVisibleCoordinate(unclampedX, unclampedY) || (unclampedX == 0 && unclampedY == 0))
+        return ["black", "black"];
 
+    let [x, y] = clampCoordinates(unclampedX, unclampedY);
     let xInDeadzone = Math.abs(x) <= DEADZONE;
     let yInDeadzone = Math.abs(y) <= DEADZONE;
 
     if (xInDeadzone && yInDeadzone)
-        return "#3C3C3C";
+        return ["#3C3C3C", "black"];
 
     /*if (isDesyncCoordinate(x, y))
         return "#FF0000";*/
 
-    let color;
+    let fill;
+    let stroke = [0, 0, 0];
 
     if (xInDeadzone || yInDeadzone)
-        color = [0x80, 0x80, 0x80];
+        fill = [0x80, 0x80, 0x80];
     else
-        color = [0x50, 0x50, 0x50];
+        fill = [0x50, 0x50, 0x50];
 
     for (let region of regions) {
         if (!region.matchesCoordinate(x, y))
             continue;
 
-        if (clamped && region.displayMode == DisplayMode.Outline)
-            continue;
-
         let alpha = region.color[3] / 255;
-        for (let j = 0; j < 3; j++)
-            color[j] = color[j] * (1 - alpha) + region.color[j] * alpha;
+        for (let j = 0; j < 3; j++) {
+            fill[j] = fill[j] * (1 - alpha) + region.color[j] * alpha;
+            if (region.displayMode == DisplayMode.Outline)
+                stroke[j] = stroke[j] * (1 - alpha) + region.color[j] * alpha;
+        }
     }
 
-    if (clamped) {
-        for (let j = 0; j < 3; j++)
-            color[j] = color[j] * CLAMPED_COLOR_MULT;
+    if (x != unclampedX || y != unclampedY) {
+        for (let j = 0; j < 3; j++) {
+            fill[j]   *= CLAMPED_COLOR_MULT;
+            stroke[j] *= CLAMPED_COLOR_MULT;
+        }
     }
 
-    return "rgb(" + color.join(",") + ")";
-}
-
-function getCoordinateStrokeStyle(x, y)
-{
-    if (!isValidCoordinate(x, y) || (x == 0 && y == 0))
-        return "black";
-
-    let xInDeadzone = Math.abs(x) <= DEADZONE;
-    let yInDeadzone = Math.abs(y) <= DEADZONE;
-
-    if (xInDeadzone && yInDeadzone)
-        return "black";
-
-    let color = [0, 0, 0];
-
-    for (let region of regions) {
-        if (region.displayMode != DisplayMode.Outline)
-            continue;
-
-        if (!region.matchesCoordinate(x, y))
-            continue;
-
-        let alpha = region.color[3] / 255;
-        for (let j = 0; j < 3; j++)
-            color[j] = color[j] * (1 - alpha) + region.color[j] * alpha;
-    }
-
-    return "rgb(" + color.join(",") + ")";
-}
-
-function clampCoordinates(x, y)
-{
-    let magnitude = Math.sqrt(x*x + y*y);
-    let scale = Math.min(CLAMP_RADIUS / magnitude, 1.0);
-    return [Math.trunc(x * scale), Math.trunc(y * scale)]
+    return [
+        "rgb(" + fill.join(",") + ")",
+        "rgb(" + stroke.join(",") + ")"
+    ];
 }
 
 function drawCoordinate(x, y)
 {
-    if (x*x + y*y > DISPLAY_RADIUS * DISPLAY_RADIUS)
+    if (!isVisibleCoordinate(x, y))
         return;
 
-    let [clampedX, clampedY] = clampCoordinates(x, y)
-    let clamped = x != clampedX || y != clampedY;
+    let [fill, stroke] = getCoordinateStyle(x, y);
 
     canvas.drawRect({
-        fillStyle: getCoordinateFillStyle(clampedX, clampedY, clamped),
-        strokeStyle: getCoordinatestrokeStyle(clampedX, clampedY),
+        fillStyle: fill,
+        strokeStyle: stroke,
         fromCenter: false,
         x: (x + DISPLAY_RADIUS) * CANVAS_SCALE + GRID_LINE_WIDTH / 2,
         y: (DISPLAY_RADIUS - y) * CANVAS_SCALE + GRID_LINE_WIDTH / 2,
@@ -1202,7 +1195,7 @@ $(function()
 
         coordinateText.text(formatCoordinate(x, y));
 
-        let color = getCoordinateFillStyle(x, y);
+        let [color] = getCoordinateStyle(x, y);
         coordinateSquare.css("margin-left", -2 / scale);
         coordinateSquare.css("margin-top", -2 / scale);
         coordinateSquare.css("width", 4 / scale);
