@@ -1,0 +1,123 @@
+<html>
+    <head>
+        <title>Melee Stick Coordinate Visualizer</title>
+        <script src="jquery-3.4.1.min.js"></script>
+        <script src="jcanvas.min.js"></script>
+        <script src="stickmap.js"></script>
+        <link rel="stylesheet" href="stickmap.css"/>
+    </head>
+    <body>
+        <template id="region-template">
+            <div class="region-container">
+                <div class="region-header flex-container">
+                    <div class="drag-handle"></div>
+                    <div class="region-header-content flex-container">
+                        <input id="region-name" type="text" spellcheck="false"/>
+                        <div class="flex-container right">
+                            <div class="move-button-container horizontal-margin">
+                                <div class="move-button move-button-up">&#9650;</div>
+                                <div class="move-button move-button-down">&#9660;</div>
+                            </div>
+                            <div class="delete-button right">&times;</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="region-content">
+                    <div class="region-option">
+                        <label for="color">Color</label>
+                        <span id="color" class="right flex-container">
+                            <input id="picker" type="color" value="#ffffff"></input>
+                            <div class="color-square-left"></div>
+                            <div class="color-square-right"></div>
+                            <label for="0" class="horizontal-margin">R</label>
+                            <input id="0" type="text" size="3" value="255" spellcheck="false"/>
+                            <label for="1" class="horizontal-margin">G</label>
+                            <input id="1" type="text" size="3" value="255" spellcheck="false"/>
+                            <label for="2" class="horizontal-margin">B</label>
+                            <input id="2" type="text" size="3" value="255" spellcheck="false"/>
+                            <label for="3" class="horizontal-margin">A</label>
+                            <input id="3" type="text" size="3" value="255" spellcheck="false"/>
+                        </span>
+                    </div>
+                    <div class="region-option flex-container">
+                        <div class="flex-container">
+                            <label for="quadrant" class="vertical-center">Quadrants</label>
+                        </div>
+                        <div id="quadrant" class="right">
+                            <div class="flex-container">
+                                <div id="1" class="quadrant">2</div>
+                                <div id="0" class="quadrant">1</div>
+                            </div>
+                            <div class="flex-container">
+                                <div id="2" class="quadrant">3</div>
+                                <div id="3" class="quadrant">4</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="region-option flex-container">
+                        <label for="display-mode">Display Mode</label>
+                        <select id="display-mode" class="right">
+                            <option value="0">Normal</option>
+                            <option value="1">Outline</option>
+                            <option value="2">Rim Only</option>
+                        </select>
+                    </div>
+                    <div class="region-option">
+                        <label for="x">X</label>
+                        <span id="x" class="right flex-container">
+                            <input id="min" type="text" size="6" value="0.0000" spellcheck="false"/>
+                            <span class="horizontal-margin">to</span>
+                            <input id="max" type="text" size="6" value="1.0000" spellcheck="false"/>
+                        </span>
+                    </div>
+                    <div class="region-option">
+                        <label for="y">Y</label>
+                        <span id="y" class="right flex-container">
+                            <input id="min" type="text" size="6" value="0.0000" spellcheck="false"/>
+                            <span class="horizontal-margin">to</span>
+                            <input id="max" type="text" size="6" value="1.0000" spellcheck="false"/>
+                        </span>
+                    </div>
+                    <div class="region-option">
+                        <label for="angle">Angle</label>
+                        <span id="angle" class="right flex-container">
+                            <input id="min" type="text" size="6" value="0.00" spellcheck="false"/>
+                            <span class="horizontal-margin">to</span>
+                            <input id="max" type="text" size="6" value="90.00" spellcheck="false"/>
+                        </span>
+                    </div>
+                    <div class="region-option">
+                        <label for="magnitude">Magnitude</label>
+                        <span id="magnitude" class="right flex-container">
+                            <input id="min" type="text" size="6" value="0.0000" spellcheck="false"/>
+                            <span class="horizontal-margin">to</span>
+                            <input id="max" type="text" size="6" value="1.0000" spellcheck="false"/>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </template>
+        <div id="loading-screen">
+            <div>Loading...</div>
+        </div>
+        <div id="page-container" class="flex-container">
+            <div id="user-input">
+                <div id="add-region" class="flex-container" onclick="addRegion();">
+                    <div class="add-button">+</div>
+                    <div class="clickable horizontal-margin">Add New Region</div>
+                </div>
+                <div id="region-list-container">
+                    <div id="drag-position-bar"></div>
+                    <div id="region-list"></div>
+                </div>
+            </div>
+            <div id="canvas-container">
+                <div>
+                    <div id="coordinate-square"></div>
+                    <div id="coordinate-text"></div>
+                    <canvas>Your browser is old as shit</canvas>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
