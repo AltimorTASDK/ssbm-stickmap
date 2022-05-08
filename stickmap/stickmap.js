@@ -1159,7 +1159,7 @@ $(function()
             scale = 1.0;
 
         canvasSize /= scale;
-        body.css("font-size", 1.25 * scale + "rem");
+        body.css("font-size", scale + "rem");
 
         if (canvasSize == MIN_CANVAS_SIZE)
             canvas.css("image-rendering", "pixelated");
