@@ -426,7 +426,6 @@ function Region(name)
         let absBottom = absTop + regionHeader.height();
         let upScroll = Math.min(scrollTop - absTop, 0);
         let downScroll = Math.min(absBottom - scrollBottom, 0);
-        console.log(upScroll, downScroll);
 
         if (upScroll > -maxScrollDistance) {
             region.scrollDistance = -upScroll - maxScrollDistance;
