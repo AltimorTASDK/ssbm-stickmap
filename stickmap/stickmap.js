@@ -827,7 +827,7 @@ function clampCoordinates(x, y)
     return [Math.trunc(x * scale), Math.trunc(y * scale)]
 }
 
-function drawCoordinate(ctx, x, y)
+function drawCoordinate(x, y)
 {
     if (x*x + y*y > DISPLAY_RADIUS * DISPLAY_RADIUS)
         return;
@@ -835,18 +835,15 @@ function drawCoordinate(ctx, x, y)
     let [clampedX, clampedY] = clampCoordinates(x, y)
     let clamped = x != clampedX || y != clampedY;
 
-    let fillSize = CANVAS_SCALE - GRID_LINE_WIDTH * 2;
-    let fillX = (x + DISPLAY_RADIUS) * CANVAS_SCALE;
-    let fillY = (DISPLAY_RADIUS - y) * CANVAS_SCALE;
-    ctx.fillStyle = getCoordinateFillStyle(clampedX, clampedY, clamped);
-    ctx.fillRect(fillX, fillY, fillSize, fillSize);
-
-    let strokeX = fillX - GRID_LINE_WIDTH / 2;
-    let strokeY = fillY - GRID_LINE_WIDTH / 2;
-    let strokeSize = fillSize + GRID_LINE_WIDTH;
-    ctx.lineWidth = GRID_LINE_WIDTH;
-    ctx.strokeStyle = getCoordinateStrokeStyle(x, y);
-    ctx.strokeRect(strokeX, strokeY, strokeSize, strokeSize);
+    canvas.drawRect({
+        fillStyle: getCoordinateFillStyle(clampedX, clampedY, clamped),
+        fromCenter: false,
+        x: (x + DISPLAY_RADIUS) * CANVAS_SCALE + GRID_LINE_WIDTH,
+        y: (DISPLAY_RADIUS - y) * CANVAS_SCALE + GRID_LINE_WIDTH,
+        width:  CANVAS_SCALE - GRID_LINE_WIDTH * 2,
+        height: CANVAS_SCALE - GRID_LINE_WIDTH * 2,
+        strokeWidth: GRID_LINE_WIDTH
+    });
 }
 
 function findMatchingCoordinate(region)
@@ -1015,10 +1012,10 @@ function drawFrame(timestamp)
 {
     let finished = true;
 
-    canvas.draw({fn: ctx => {
+    canvas.draw({fn: () => {
         while (drawX <= DISPLAY_RADIUS) {
             while (drawY <= DISPLAY_RADIUS) {
-                drawCoordinate(ctx, drawX, drawY);
+                drawCoordinate(drawX, drawY);
                 drawY++;
 
                 // Defer to next frame if taking too long
