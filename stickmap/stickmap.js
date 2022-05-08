@@ -7,6 +7,9 @@ const MINIMUM_FRAMERATE = 255;
 const DISPLAY_RADIUS = 80; // Unclamped range
 const CLAMP_RADIUS = 80; // Clamped range
 
+// How much to darken clamped coordinates
+const CLAMPED_COLOR_MULT = 1.0 / 3.0;
+
 const GRID_LINE_WIDTH = 1;
 const CANVAS_SCALE = 6;
 const CANVAS_SIZE = (DISPLAY_RADIUS * 2 + 1) * CANVAS_SCALE - GRID_LINE_WIDTH * 2;
@@ -763,10 +766,6 @@ function getCoordinateFillStyle(x, y, clamped)
 
     let color;
 
-    /*if (yInDeadzone)
-        color = [0x50, 0x50, 0xC8];
-    else if (xInDeadzone)
-        color = y > 0 ? [0x50, 0x78, 0x50] : [0x78, 0x50, 0x50];*/
     if (xInDeadzone || yInDeadzone)
         color = [0x80, 0x80, 0x80];
     else
@@ -786,7 +785,7 @@ function getCoordinateFillStyle(x, y, clamped)
 
     if (clamped) {
         for (let j = 0; j < 3; j++)
-            color[j] = color[j] * .34;
+            color[j] = color[j] * CLAMPED_COLOR_MULT;
     }
 
     return "rgb(" + color.join(",") + ")";
@@ -837,11 +836,12 @@ function drawCoordinate(x, y)
 
     canvas.drawRect({
         fillStyle: getCoordinateFillStyle(clampedX, clampedY, clamped),
+        strokeStyle: getCoordinatestrokeStyle(clampedX, clampedY),
         fromCenter: false,
-        x: (x + DISPLAY_RADIUS) * CANVAS_SCALE + GRID_LINE_WIDTH,
-        y: (DISPLAY_RADIUS - y) * CANVAS_SCALE + GRID_LINE_WIDTH,
-        width:  CANVAS_SCALE - GRID_LINE_WIDTH * 2,
-        height: CANVAS_SCALE - GRID_LINE_WIDTH * 2,
+        x: (x + DISPLAY_RADIUS) * CANVAS_SCALE + GRID_LINE_WIDTH / 2,
+        y: (DISPLAY_RADIUS - y) * CANVAS_SCALE + GRID_LINE_WIDTH / 2,
+        width:  CANVAS_SCALE - GRID_LINE_WIDTH,
+        height: CANVAS_SCALE - GRID_LINE_WIDTH,
         strokeWidth: GRID_LINE_WIDTH
     });
 }
