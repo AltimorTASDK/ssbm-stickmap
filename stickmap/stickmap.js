@@ -1166,19 +1166,17 @@ $(function()
         else
             canvas.css("image-rendering", "auto");
 
+        canvas.css("width", canvasSize);
+        canvas.css("height", canvasSize);
+        canvasContainer.css("min-height", canvasSize);
+
         if (canvasSizeHorizontal >= canvasSizeVertical) {
             // Horizontal
-            canvas.css("width", canvasSize);
-            canvas.css("height", canvasSize);
-            canvasContainer.css("min-height", canvasSize);
             pageContainer.css("flex-direction", "row");
             body.addClass("horizontal");
             body.removeClass("vertical");
         } else {
             // Vertical
-            canvas.css("width", canvasSize);
-            canvas.css("height", canvasSize);
-            canvasContainer.css("min-height", canvasSize);
             pageContainer.css("flex-direction", "column-reverse");
             body.removeClass("horizontal");
             body.addClass("vertical");
