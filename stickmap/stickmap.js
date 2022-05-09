@@ -1131,22 +1131,22 @@ $(function()
     let coordinateSquare = $("#coordinate-square");
     let coordinateText = $("#coordinate-text");
     let body = $("body");
-    let minLeftSideWidth = emToPixels(body, 30);
-    let minLeftSideHeight = emToPixels(body, 25);
+    let minRegionListWidth = emToPixels(body, 30);
+    let minRegionListHeight = emToPixels(body, 25);
 
     function updateVerticalMode()
     {
         let canvasSizeHorizontal;
-        if (window.innerWidth - window.innerHeight >= minLeftSideWidth)
+        if (window.innerWidth - window.innerHeight >= minRegionListWidth)
             canvasSizeHorizontal = window.innerHeight;
         else
-            canvasSizeHorizontal = window.innerWidth - minLeftSideWidth;
+            canvasSizeHorizontal = window.innerWidth - minRegionListWidth;
 
         let canvasSizeVertical;
-        if (window.innerHeight - window.innerWidth >= minLeftSideHeight)
+        if (window.innerHeight - window.innerWidth >= minRegionListHeight)
             canvasSizeVertical = window.innerWidth;
         else
-            canvasSizeVertical = window.innerHeight - minLeftSideHeight;
+            canvasSizeVertical = window.innerHeight - minRegionListHeight;
 
         let windowSize = Math.min(window.innerWidth, window.innerHeight);
         let canvasSize = Math.max(canvasSizeHorizontal, canvasSizeVertical);
