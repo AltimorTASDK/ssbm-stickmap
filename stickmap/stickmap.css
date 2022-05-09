@@ -458,8 +458,8 @@ body.vertical #canvas-container div {
     pointer-events: none;
 }
 
-#canvas-container div:hover #coordinate-square,
-#canvas-container div:hover #coordinate-text {
+#canvas-container:hover #coordinate-square,
+#canvas-container:hover #coordinate-text {
     display: block;
 }
 
