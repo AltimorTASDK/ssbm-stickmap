@@ -15,6 +15,9 @@ const CANVAS_SCALE = 6;
 const CANVAS_SIZE = (DISPLAY_RADIUS * 2 + 1) * CANVAS_SCALE - GRID_LINE_WIDTH * 2;
 const MIN_CANVAS_SIZE = CANVAS_SIZE * 0.5;
 
+// Minimum body scale for small windows
+const MIN_SCALE = 0.6;
+
 // em
 const SCROLL_DISTANCE = 2.0;
 
@@ -1136,41 +1139,32 @@ $(function()
 
     function updateVerticalMode()
     {
-        let canvasSizeHorizontal;
-        if (window.innerWidth - window.innerHeight >= minRegionListWidth)
-            canvasSizeHorizontal = window.innerHeight;
-        else
-            canvasSizeHorizontal = window.innerWidth - minRegionListWidth;
+        let windowWidth = window.innerWidth;
+        let windowHeight = window.innerHeight;
+        let canvasSizeHorz = Math.min(windowHeight, windowWidth  - minRegionListWidth);
+        let canvasSizeVert = Math.min(windowWidth,  windowHeight - minRegionListHeight);
+        let canvasSize = Math.max(canvasSizeHorz, canvasSizeVert);
+        let minCanvasSize = Math.min(MIN_CANVAS_SIZE, Math.min(windowWidth, windowHeight));
+        let ratio = canvasSize / minCanvasSize;
 
-        let canvasSizeVertical;
-        if (window.innerHeight - window.innerWidth >= minRegionListHeight)
-            canvasSizeVertical = window.innerWidth;
-        else
-            canvasSizeVertical = window.innerHeight - minRegionListHeight;
-
-        let windowSize = Math.min(window.innerWidth, window.innerHeight);
-        let canvasSize = Math.max(canvasSizeHorizontal, canvasSizeVertical);
-        let minCanvasSize = Math.min(MIN_CANVAS_SIZE, windowSize);
-
-        let scale;
-        if (canvasSize < minCanvasSize)
-            scale = Math.max(canvasSize / minCanvasSize, 0.6);
-        else
-            scale = 1.0;
-
-        canvasSize /= scale;
-        body.css("font-size", scale + "rem");
-
-        if (canvasSize == MIN_CANVAS_SIZE)
-            canvas.css("image-rendering", "pixelated");
-        else
+        if (ratio >= 1.0) {
+            body.css("font-size", "1rem");
             canvas.css("image-rendering", "auto");
+        } else if (ratio < MIN_SCALE) {
+            canvasSize /= MIN_SCALE;
+            body.css("font-size", MIN_SCALE + "rem");
+            canvas.css("image-rendering", "auto");
+        } else {
+            canvasSize = minCanvasSize;
+            body.css("font-size", ratio + "rem");
+            canvas.css("image-rendering", "crisp-edges");
+        }
 
         canvas.css("width", canvasSize);
         canvas.css("height", canvasSize);
         canvasContainer.css("min-height", canvasSize);
 
-        if (canvasSizeHorizontal >= canvasSizeVertical) {
+        if (canvasSizeHorz >= canvasSizeVert) {
             // Horizontal
             pageContainer.css("flex-direction", "row");
             body.addClass("horizontal");
