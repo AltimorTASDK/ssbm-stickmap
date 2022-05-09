@@ -12,7 +12,7 @@ const CLAMPED_COLOR_MULT = 1.0 / 3.0;
 
 const GRID_LINE_WIDTH = 1;
 const CANVAS_SCALE = 6;
-const CANVAS_SIZE = (DISPLAY_RADIUS * 2 + 1) * CANVAS_SCALE - GRID_LINE_WIDTH * 2;
+const CANVAS_SIZE = (DISPLAY_RADIUS * 2 + 1) * CANVAS_SCALE + GRID_LINE_WIDTH * 2;
 const MIN_CANVAS_SIZE = CANVAS_SIZE * 0.5;
 
 // Minimum body scale for small windows
@@ -838,8 +838,8 @@ function drawCoordinate(x, y)
         fillStyle: fill,
         strokeStyle: stroke,
         fromCenter: false,
-        x: (x + DISPLAY_RADIUS) * CANVAS_SCALE + GRID_LINE_WIDTH / 2,
-        y: (DISPLAY_RADIUS - y) * CANVAS_SCALE + GRID_LINE_WIDTH / 2,
+        x: (x + DISPLAY_RADIUS) * CANVAS_SCALE + GRID_LINE_WIDTH * 1.5,
+        y: (DISPLAY_RADIUS - y) * CANVAS_SCALE + GRID_LINE_WIDTH * 1.5,
         width:  CANVAS_SCALE - GRID_LINE_WIDTH,
         height: CANVAS_SCALE - GRID_LINE_WIDTH,
         strokeWidth: GRID_LINE_WIDTH
