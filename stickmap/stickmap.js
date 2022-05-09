@@ -440,17 +440,17 @@ function Region(name)
             });
         }
 
-        let scrollTop = userInput.scrollTop();
-        let scrollBottom = scrollTop + userInput.innerHeight();
-        let absTop = scrollTop + event.pageY - region.dragOffset;
-        let absBottom = absTop + regionHeader.height();
-        let upScroll = Math.min(scrollTop - absTop, 0);
-        let downScroll = Math.min(absBottom - scrollBottom, 0);
+        let scrollAreaTop = userInput.offset().top;
+        let scrollAreaBottom = scrollAreaTop + userInput.innerHeight();
+        let headerTop = event.pageY - region.dragOffset;
+        let headerBottom = headerTop + regionHeader.height();
+        let distanceTop = Math.min(scrollAreaTop - headerTop, 0);
+        let distanceBottom = Math.min(headerBottom - scrollAreaBottom, 0);
 
-        if (upScroll > -autoScrollDistance) {
-            region.scrollDistance = -upScroll - autoScrollDistance;
-        } else if (downScroll > -autoScrollDistance) {
-            region.scrollDistance = downScroll + autoScrollDistance;
+        if (distanceTop > -autoScrollDistance) {
+            region.scrollDistance = -distanceTop - autoScrollDistance;
+        } else if (distanceBottom > -autoScrollDistance) {
+            region.scrollDistance = distanceBottom + autoScrollDistance;
         } else {
             let parentTop = elem.parent().offset().top;
             let top = event.pageY - parentTop - region.dragOffset;
