@@ -1203,17 +1203,15 @@ $(function()
         coordinateSquare.css("left", offsetX);
         coordinateSquare.css("top", offsetY);
 
-        let textWidth = coordinateText.outerWidth();
-        let textHeight = coordinateText.outerHeight();
         let textX = offsetX + emToPixels(coordinateText, 1.0);
         let textY = offsetY + emToPixels(coordinateText, 1.0);
-        let maxOffsetX = canvasX + canvas.innerWidth() - textWidth;
-        let maxOffsetY = canvasY + canvas.innerHeight() - textHeight;
-        coordinateText.css("left", Math.min(textX, maxOffsetX));
-        coordinateText.css("top", Math.min(textY, maxOffsetY));
+        let edgeX = canvasContainer.offset().left + canvasContainer.innerWidth();
+        let edgeY = canvasContainer.offset().top  + canvasContainer.innerHeight();
+        coordinateText.css("left", Math.min(textX, edgeX - coordinateText.outerWidth()));
+        coordinateText.css("top",  Math.min(textY, edgeY - coordinateText.outerHeight()));
     }
 
-    canvas.mousemove(event => {
+    canvasContainer.mousemove(event => {
         mouseX = event.offsetX;
         mouseY = event.offsetY;
         updateCoordinateDisplay();
