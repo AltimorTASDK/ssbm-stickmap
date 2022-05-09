@@ -846,161 +846,6 @@ function drawCoordinate(x, y)
     });
 }
 
-function findMatchingCoordinate(region)
-{
-    // Find any matching coordinate
-    for (let x = 0; x <= CLAMP_RADIUS; x++) {
-        for (let y = 0; y <= CLAMP_RADIUS; y++) {
-            if (region.matchesCoordinate(x, y))
-                return {x: x, y: y};
-            else if (region.matchesCoordinate(-x, y))
-                return {x: -x, y: y};
-            else if (region.matchesCoordinate(x, -y))
-                return {x: x, y: -y};
-            else if (region.matchesCoordinate(-x, -y))
-                return {x: -x, y: -y};
-        }
-    }
-    return null;
-}
-
-function findAdjacentCoordinate(region, x, y, lastX, lastY)
-{
-    const diagonals = [
-        {x: 1, y: 1},
-        {x: -1, y: 1},
-        {x: -1, y: -1},
-        {x: 1, y: -1}
-    ];
-
-    const cardinals = [
-        {x: 1, y: 0},
-        {x: 0, y: 1},
-        {x: -1, y: 0},
-        {x: 0, y: -1}
-    ];
-
-    let directionX = Math.min(Math.max(x - lastX, -1), 1);
-    let directionY = Math.min(Math.max(y - lastY, -1), 1);
-    lastX = x - directionX;
-    lastY = y - directionY;
-
-    if (x != lastX || y != lastY && (directionX == 0 || directionY == 0)) {
-        if (region.matchesCoordinate(x + directionX * 2, y + directionY * 2))
-            return {x: x + directionX, y: y + directionY};
-    }
-
-    for (let offset of diagonals) {
-        let testX = x + offset.x;
-        let testY = y + offset.y;
-        if (testX == lastX || testY == lastY)
-            continue;
-
-        if (region.matchesCoordinate(testX, testY))
-            return {x: testX, y: testY};
-    }
-
-    if (x != lastX || y != lastY) {
-        if (region.matchesCoordinate(x + directionX, y + directionY))
-            return {x: x + directionX, y: y + directionY};
-        else if (region.matchesCoordinate(x + directionX, y))
-            return {x: x + directionX, y: y};
-        else if (region.matchesCoordinate(x, y + directionY))
-            return {x: x, y: y + directionY};
-    }
-
-    for (let offset of cardinals) {
-        let testX = x + offset.x;
-        let testY = y + offset.y;
-        if (testX == lastX && testY == lastY)
-            continue;
-
-        if (region.matchesCoordinate(testX, testY))
-            return {x: testX, y: testY};
-    }
-
-    return null;
-}
-
-function drawOutlineRegion(ctx, region)
-{
-    let start = findMatchingCoordinate(region);
-    if (start == null)
-        return;
-
-    let x = start.x;
-    let y = start.y;
-    let lastX = x;
-    let lastY = y;
-    let lastDirectionX = 0;
-    let lastDirectionY = 0;
-    let count = 0;
-    let test = 0;
-
-    ctx.beginPath();
-    let startLineX = (x + CLAMP_RADIUS + .5) * CANVAS_SCALE;
-    let startLineY = (CLAMP_RADIUS + .5 - y) * CANVAS_SCALE;
-    ctx.moveTo(startLineX, startLineY);
-
-    do {
-        let directionX = Math.min(Math.max(x - lastX, -1), 1);
-        let directionY = Math.min(Math.max(y - lastY, -1), 1);
-
-        if (directionX != lastDirectionX || directionY != lastDirectionY) {
-            let lineX = (lastX + CLAMP_RADIUS + .5) * CANVAS_SCALE;
-            let lineY = (CLAMP_RADIUS + .5 - lastY) * CANVAS_SCALE;
-            ctx.lineTo(lineX, lineY);
-        }
-
-        let adjacent = findAdjacentCoordinate(region, x, y, lastX, lastY);
-        if (adjacent == null)
-            break;
-
-        lastDirectionX = directionX;
-        lastDirectionY = directionY;
-        lastX = x;
-        lastY = y;
-        x = adjacent.x;
-        y = adjacent.y;
-    } while ((x != start.x || y != start.y) && ++count < 10000);
-
-    ctx.strokeStyle = region.getFillStyle();
-    ctx.lineWidth = 4;
-    ctx.stroke();
-}
-
-function drawRegionLine(ctx, region)
-{
-    let totalX = 0;
-    let totalY = 0;
-    let totalCount = 0;
-
-    // Find any matching coordinate
-    for (let x = -CLAMP_RADIUS; x <= CLAMP_RADIUS; x++) {
-        for (let y = -CLAMP_RADIUS; y <= CLAMP_RADIUS; y++) {
-            if (!region.matchesCoordinate(x, y))
-                continue;
-
-            totalX += x;
-            totalY += y;
-            totalCount++;
-        }
-    }
-
-    ctx.beginPath();
-
-    let center = (DISPLAY_RADIUS + .5) * CANVAS_SCALE;
-    ctx.moveTo(center, center);
-
-    let lineX = (totalX / totalCount + DISPLAY_RADIUS + .5) * CANVAS_SCALE;
-    let lineY = (DISPLAY_RADIUS + .5 - totalY / totalCount) * CANVAS_SCALE;
-    ctx.lineTo(lineX, lineY);
-
-    ctx.strokeStyle = region.getFillStyle();
-    ctx.lineWidth = 4;
-    ctx.stroke();
-}
-
 function drawStickMap()
 {
     drawX = -DISPLAY_RADIUS;
@@ -1010,43 +855,28 @@ function drawStickMap()
 
 function drawFrame(timestamp)
 {
-    let finished = false;
+    while (drawX <= DISPLAY_RADIUS) {
+        while (drawY <= DISPLAY_RADIUS) {
+            drawCoordinate(drawX, drawY);
+            drawY++;
 
-    canvas.draw({fn: () => {
-        while (drawX <= DISPLAY_RADIUS) {
-            while (drawY <= DISPLAY_RADIUS) {
-                drawCoordinate(drawX, drawY);
-                drawY++;
-
-                // Defer to next frame if taking too long
-                if (performance.now() - timestamp > 1000 / MINIMUM_FRAMERATE) {
-                    requestAnimationFrame(drawFrame);
-                    return;
-                }
+            // Defer to next frame if taking too long
+            if (performance.now() - timestamp > 1000 / MINIMUM_FRAMERATE) {
+                requestAnimationFrame(drawFrame);
+                return;
             }
-
-            drawX++;
-            drawY = -DISPLAY_RADIUS;
         }
 
-        /*for (let region of regions)
-            drawRegionLine(ctx, region);*/
+        drawX++;
+        drawY = -DISPLAY_RADIUS;
+    }
 
-        /*for (let region of regions) {
-            if (region.displayMode == DisplayMode.Outline)
-                drawOutlineRegion(ctx, region);
-        }*/
-
-        finished = true;
-    }});
-
-    if (!finished || !loading)
-        return;
-
-    let loadingScreen = $("#loading-screen");
-    loading = false;
-    loadingScreen.css("pointer-events", "none");
-    loadingScreen.animate({opacity: 0.0}, 100, loadingScreen.remove);
+    if (loading) {
+        let loadingScreen = $("#loading-screen");
+        loading = false;
+        loadingScreen.css("pointer-events", "none");
+        loadingScreen.animate({opacity: 0.0}, 100, loadingScreen.remove);
+    }
 }
 
 function repositionRegions(exclude=null, interpolate=true)
