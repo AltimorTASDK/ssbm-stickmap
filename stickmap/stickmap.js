@@ -1010,7 +1010,7 @@ function drawStickMap()
 
 function drawFrame(timestamp)
 {
-    let finished = true;
+    let finished = false;
 
     canvas.draw({fn: () => {
         while (drawX <= DISPLAY_RADIUS) {
@@ -1021,7 +1021,6 @@ function drawFrame(timestamp)
                 // Defer to next frame if taking too long
                 if (performance.now() - timestamp > 1000 / MINIMUM_FRAMERATE) {
                     requestAnimationFrame(drawFrame);
-                    finished = false;
                     return;
                 }
             }
@@ -1037,6 +1036,8 @@ function drawFrame(timestamp)
             if (region.displayMode == DisplayMode.Outline)
                 drawOutlineRegion(ctx, region);
         }*/
+
+        finished = true;
     }});
 
     if (!finished || !loading)
@@ -1161,7 +1162,7 @@ $(function()
         } else {
             canvasSize = minCanvasSize;
             body.css("font-size", ratio + "rem");
-            canvas.css("image-rendering", "crisp-edges");
+            canvas.css("image-rendering", "pixelated");
         }
 
         canvas.css("width", canvasSize);
