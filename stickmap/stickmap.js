@@ -1169,6 +1169,12 @@ $(function()
         canvas.css("height", canvasSize);
         canvasContainer.css("min-height", canvasSize);
 
+        // Update mouseover square size for canvas scale
+        let canvasScale = canvasSize / CANVAS_SIZE;
+        let squareSize = Math.round((CANVAS_SCALE - GRID_LINE_WIDTH * 2) * canvasScale);
+        coordinateSquare.css("width", squareSize);
+        coordinateSquare.css("height", squareSize);
+
         if (canvasSizeHorz >= canvasSizeVert) {
             // Horizontal
             pageContainer.css("flex-direction", "row");
@@ -1193,17 +1199,12 @@ $(function()
         coordinateText.text(formatCoordinate(x, y));
 
         let [color] = getCoordinateStyle(x, y);
-        let squareSize = Math.round((CANVAS_SCALE - GRID_LINE_WIDTH * 2) * scale);
-        coordinateSquare.css("width", squareSize);
-        coordinateSquare.css("height", squareSize);
         coordinateSquare.css("background-color", color);
 
-        let canvasX = canvas.offset().left;
-        let canvasY = canvas.offset().top;
-        let pixelX = (x + DISPLAY_RADIUS + .5) * CANVAS_SCALE - GRID_LINE_WIDTH;
-        let pixelY = (DISPLAY_RADIUS + .5 - y) * CANVAS_SCALE - GRID_LINE_WIDTH;
-        let offsetX = Math.round(canvasX + pixelX * scale);
-        let offsetY = Math.round(canvasY + pixelY * scale);
+        let pixelX = (x + DISPLAY_RADIUS) * CANVAS_SCALE + GRID_LINE_WIDTH * 2;
+        let pixelY = (DISPLAY_RADIUS - y) * CANVAS_SCALE + GRID_LINE_WIDTH * 2;
+        let offsetX = Math.round(canvas.offset().left + pixelX * scale);
+        let offsetY = Math.round(canvas.offset().top  + pixelY * scale);
         coordinateSquare.css("left", offsetX);
         coordinateSquare.css("top", offsetY);
 
