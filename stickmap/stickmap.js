@@ -1184,27 +1184,26 @@ $(function()
 
     function updateCoordinateDisplay()
     {
-        let scale = CANVAS_SIZE / canvas.innerHeight();
+        let scale = canvas.innerHeight() / CANVAS_SIZE;
 
-        let unclampedX = Math.floor(mouseX * scale / CANVAS_SCALE - DISPLAY_RADIUS);
-        let unclampedY = Math.ceil(DISPLAY_RADIUS - mouseY * scale / CANVAS_SCALE);
+        let unclampedX = Math.floor(mouseX / scale / CANVAS_SCALE - DISPLAY_RADIUS);
+        let unclampedY = Math.ceil(DISPLAY_RADIUS - mouseY / scale / CANVAS_SCALE);
         let [x, y] = clampCoordinates(unclampedX, unclampedY);
 
         coordinateText.text(formatCoordinate(x, y));
 
         let [color] = getCoordinateStyle(x, y);
-        coordinateSquare.css("margin-left", -2 / scale);
-        coordinateSquare.css("margin-top", -2 / scale);
-        coordinateSquare.css("width", 4 / scale);
-        coordinateSquare.css("height", 4 / scale);
+        let squareSize = Math.round((CANVAS_SCALE - GRID_LINE_WIDTH * 2) * scale);
+        coordinateSquare.css("width", squareSize);
+        coordinateSquare.css("height", squareSize);
         coordinateSquare.css("background-color", color);
 
         let canvasX = canvas.offset().left;
         let canvasY = canvas.offset().top;
         let pixelX = (x + DISPLAY_RADIUS + .5) * CANVAS_SCALE - GRID_LINE_WIDTH;
         let pixelY = (DISPLAY_RADIUS + .5 - y) * CANVAS_SCALE - GRID_LINE_WIDTH;
-        let offsetX = canvasX + Math.round(pixelX / scale);
-        let offsetY = canvasY + Math.round(pixelY / scale);
+        let offsetX = Math.round(canvasX + pixelX * scale);
+        let offsetY = Math.round(canvasY + pixelY * scale);
         coordinateSquare.css("left", offsetX);
         coordinateSquare.css("top", offsetY);
 
@@ -1217,8 +1216,8 @@ $(function()
     }
 
     canvasContainer.mousemove(event => {
-        mouseX = event.offsetX;
-        mouseY = event.offsetY;
+        mouseX = event.pageX - canvas.offset().left;
+        mouseY = event.pageY - canvas.offset().top;
         updateCoordinateDisplay();
     });
 
