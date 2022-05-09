@@ -439,15 +439,15 @@ body.vertical #canvas-container {
     width: 100%;
 }
 
-#canvas-container div {
+#canvas-centered {
     margin: auto;
 }
 
-body.horizontal #canvas-container div {
+body.horizontal #canvas-centered {
     height: fit-content;
 }
 
-body.vertical #canvas-container div {
+body.vertical #canvas-centered {
     width: fit-content;
 }
 
@@ -466,6 +466,12 @@ body.vertical #canvas-container div {
 
 #coordinate-square {
     box-shadow: 0 0 2px 2px #9afbff;
+}
+
+#coordinate-square-inner {
+    box-shadow: inset 0 0 2px 0px #9afbff;
+    width: 100%;
+    height: 100%;
 }
 
 #coordinate-text {
