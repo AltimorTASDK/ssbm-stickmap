@@ -18,8 +18,11 @@ const MIN_CANVAS_SIZE = CANVAS_SIZE * 0.5;
 // Minimum body scale for small windows
 const MIN_SCALE = 0.6;
 
-// em
-const SCROLL_DISTANCE = 2.0;
+// Minimum mouse movement to start dragging a region
+const MIN_DRAG_DISTANCE = 2.0; // em
+
+// Minimum region drag distance from top/bottom before auto scrolling starts
+const AUTO_SCROLL_DISTANCE = 2.0; // em
 
 const DisplayMode = {
     Normal: 0,
@@ -373,8 +376,9 @@ function Region(name)
             return;
 
         let elem = region.element;
+        let minDragDistance = emToPixels($("body"), MIN_DRAG_DISTANCE);
 
-        if (!region.dragging && Math.abs(event.pageY - region.dragStart) > 40) {
+        if (!region.dragging && Math.abs(event.pageY - region.dragStart) > minDragDistance) {
             region.dragging = true;
 
             lockRegionListHeight();
@@ -398,7 +402,7 @@ function Region(name)
         let userInput = $("#user-input");
         let regionList = $("#region-list");
         let regionHeader = elem.find(".region-header");
-        let maxScrollDistance = emToPixels($("body"), SCROLL_DISTANCE);
+        let autoScrollDistance = emToPixels($("body"), AUTO_SCROLL_DISTANCE);
 
         let autoScroll = () => {
             if (!region.dragging || !region.scrolling)
@@ -409,12 +413,12 @@ function Region(name)
             let top = -regionList.offset().top;
 
             if (distance > 0) {
-                scrollSpeed = Math.min(distance, maxScrollDistance);
-                top += scrollSpeed * 2 - maxScrollDistance;
+                scrollSpeed = Math.min(distance, autoScrollDistance);
+                top += scrollSpeed * 2 - autoScrollDistance;
                 top += userInput.innerHeight() - regionHeader.height();
             } else {
-                scrollSpeed = Math.max(distance, -maxScrollDistance);
-                top += scrollSpeed * 2 + maxScrollDistance;
+                scrollSpeed = Math.max(distance, -autoScrollDistance);
+                top += scrollSpeed * 2 + autoScrollDistance;
             }
 
             let topMax = regionList.innerHeight() - regionHeader.height();
@@ -443,10 +447,10 @@ function Region(name)
         let upScroll = Math.min(scrollTop - absTop, 0);
         let downScroll = Math.min(absBottom - scrollBottom, 0);
 
-        if (upScroll > -maxScrollDistance) {
-            region.scrollDistance = -upScroll - maxScrollDistance;
-        } else if (downScroll > -maxScrollDistance) {
-            region.scrollDistance = downScroll + maxScrollDistance;
+        if (upScroll > -autoScrollDistance) {
+            region.scrollDistance = -upScroll - autoScrollDistance;
+        } else if (downScroll > -autoScrollDistance) {
+            region.scrollDistance = downScroll + autoScrollDistance;
         } else {
             let parentTop = elem.parent().offset().top;
             let top = event.pageY - parentTop - region.dragOffset;
