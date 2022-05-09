@@ -692,7 +692,7 @@ function removeCharAt(string, i)
 
 function emToPixels(elem, em)
 {
-    return em * parseInt(elem.css("font-size"));
+    return em * parseFloat(elem.css("font-size"));
 }
 
 function formatCoordinate(x, y)
