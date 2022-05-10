@@ -206,6 +206,8 @@ function Region(name)
 
         if (x > 0 && y < 0 && !quadrants[3])
             return false;
+
+        return true;
     }
 
     this.containsCoordinate = function(x, y)
