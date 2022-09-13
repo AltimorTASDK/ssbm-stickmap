@@ -739,14 +739,14 @@ function getVisibleRadius(x, y)
     // Wait a minute... look! The stop sign has 1, 2, 3, 4, 5, 6, 7, 8 glorious sides...
     // and 1, 2, 3, 4, 5, 6, 7, 8 stunning angles! The stop sign is an octagon! We found an octagon!
     const sides = 8;
-    const interior_angles_sum = (sides - 2) * Math.PI;
-    const half_interior_angle = interior_angles_sum / sides / 2;
+    const interiorAnglesSum = (sides - 2) * Math.PI;
+    const halfInteriorAngle = interiorAnglesSum / sides / 2;
 
     let angle = Math.atan2(Math.abs(y), Math.abs(x)) % (2 * Math.PI / sides);
 
     // Law of sines
-    return DISPLAY_RADIUS * Math.sin(half_interior_angle)
-                          / Math.sin(Math.PI - angle - half_interior_angle);
+    return DISPLAY_RADIUS * Math.sin(halfInteriorAngle)
+                          / Math.sin(Math.PI - angle - halfInteriorAngle);
 }
 
 function isVisibleCoordinate(x, y)
