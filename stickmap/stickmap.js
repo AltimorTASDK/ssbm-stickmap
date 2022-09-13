@@ -3,8 +3,7 @@ const DEADZONE = 22;
 // Minimum framerate to maintain while redrawing canvas
 const MINIMUM_FRAMERATE = 255;
 
-//const DISPLAY_RADIUS = 103; // Unclamped range
-const DISPLAY_RADIUS = 80; // Unclamped range
+const DISPLAY_RADIUS = 103; // Unclamped range
 const CLAMP_RADIUS = 80; // Clamped range
 
 // How much to darken clamped coordinates
@@ -719,9 +718,40 @@ function isValidCoordinate(x, y)
     return x*x + y*y <= CLAMP_RADIUS * CLAMP_RADIUS;
 }
 
+function getVisibleRadius(x, y)
+{
+    // Hey, how's it going. I'm Jack, and today, I'm here to tell you about the word "octagon".
+    // Now, "octagon" is an amazing shape that has 8 fantastic sides and 8 awesome angles.
+    // Here, let me show you. Oh no... OH MAN! I totally forgot to bring an octagon!
+    // This is embarassing. Ok, don't worry, we can go find one. Come on, let's go find an octagon!
+    //
+    // Oh, oh... stop!
+    //
+    // Sorry Elmo, I can't stop at the stop sign right now. I'm busy looking for an octagon!
+    //
+    // Oh, oh, stop!
+    //
+    // Okay, Elmo, I see the stop sign, but I have to find an octagon!
+    // If I stop, how can I find an octagon? How, Elmo, how!?
+    //
+    // *Stoooop*!
+    //
+    // Wait a minute... look! The stop sign has 1, 2, 3, 4, 5, 6, 7, 8 glorious sides...
+    // and 1, 2, 3, 4, 5, 6, 7, 8 stunning angles! The stop sign is an octagon! We found an octagon!
+    const sides = 8;
+    const interior_angles_sum = (sides - 2) * Math.PI;
+    const half_interior_angle = interior_angles_sum / sides / 2;
+
+    let angle = Math.atan2(Math.abs(y), Math.abs(x)) % (2 * Math.PI / sides);
+
+    // Law of sines
+    return DISPLAY_RADIUS * Math.sin(half_interior_angle)
+                          / Math.sin(Math.PI - angle - half_interior_angle);
+}
+
 function isVisibleCoordinate(x, y)
 {
-    return x*x + y*y <= DISPLAY_RADIUS * DISPLAY_RADIUS;
+    return x*x + y*y <= getVisibleRadius(x, y)**2;
 }
 
 function clampCoordinates(x, y)
