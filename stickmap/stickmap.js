@@ -304,7 +304,7 @@ function Region(name)
     this.angleMin = 0.0;
     this.angleMax = 90.0;
     this.magnitudeMin = 0;
-    this.magnitudeMax = 80;
+    this.magnitudeMax = CLAMP_RADIUS;
 
     this.clicked = false;
     this.dragging = false;
