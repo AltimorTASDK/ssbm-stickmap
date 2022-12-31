@@ -646,8 +646,8 @@ function filterCoord(elem)
         [/^(\d{0,4}$)/,                   "0.$1"], // Automatically prepend decimal
         [/(?<=^\d+)(?=\d{4}$)/,           "."],    // Automatically insert decimal
         [/(?<=\.)\./g,                    ""],     // Remove duplicate decimal points
-        [/^\.\d\./g,                      "0."],   // Overwrite ones digit with decimal point
-        [/^(?=\.)/g,                      "0"],    // Prepend leading 0
+        [/^\.\d\./,                       "0."],   // Overwrite ones digit with decimal point
+        [/^(?=\.)/,                       "0"],    // Prepend leading 0
         [/.+(?=\d\.)/g,                   ""],     // Set new decimal point
         [/(?<caret>).(?=.*$(?<=\d{5}))/g, ""],     // Replace digit when over 4 decimal places
         [/(?<caret>)(?=.*$(?<!\d{4}))/g,  "0"],    // Insert 0 when backspacing
@@ -655,82 +655,32 @@ function filterCoord(elem)
         [/^[2-9]/,                        "1"],    // Cap ones digit to 1
         [/(?<=^1(?<caret>).*)[1-9]/g,     "0"],    // Zero out fractional digits when inputting 1.0
         [/^1(?!\.0+$)/,                   "0"],    // Modulo 1 when setting fractional digits
-        [/(?<=\d{4,})./g,                 ""]);    // Truncate to 4 decimal places
+        [/(?<=\.\d{4,}).+$/,              ""]);    // Truncate to 4 decimal places
 
     return Math.round(parseFloat(elem.value) * CLAMP_RADIUS);
 }
 
 function filterAngle(elem)
 {
-    let selectionStart = elem.selectionStart;
-    let selectionEnd = elem.selectionEnd;
+    filterElemValue(elem,
+        [/[^\d.]/g,                       ""],      // Remove invalid characters
+        [/(?<=^\d\d)(\d)(?<caret>)\./,    ".$1"],   // Automatically type digits after decimal
+        [/(?<=^\d)(?<caret>)\d(?=\d\.)/,  ""],      // Type over tens digit
+        [/(?<=^0)(?<caret>)\d(?=\.)/,     ""],      // Type over ones digit with zero
+        [/(?<=^\d\d)(?<caret>)\d(?=\.)/,  ""],      // Type over ones digit
+        [/(?<=^\d{0,2})$/,                ".00"],   // Automatically append decimal
+        [/(?<=^\d+)(?=\d{2}$)/,           "."],     // Automatically insert decimal
+        [/(?<=^\d*)\.\d+\./,              "."],     // Overwrite up to old decimal point
+        [/(?<=\..*)\./g,                  ""],      // Remove duplicate decimal points
+        [/^(?=\.)/,                       "0"],     // Prepend leading 0
+        [/^0(?=\d)/,                      ""],      // Don't allow tens digit to be 0
+        [/(?<caret>).(?=.*$(?<=\d{3}))/g, ""],      // Replace digit when over 2 decimal places
+        [/(?<caret>)(?=.*$(?<!\d{2}))/g,  "0"],     // Insert 0 when backspacing
+        [/$(?<!\d{2})/,                   "00"],    // Ensure 2 decimal places
+        [/(?<=^9)(?=\d)/,                 "0.00"],  // Cap to 90
+        [/(?<=\.\d{2,}).+$/,              ""]);     // Truncate to 2 decimal places
 
-    // Don't allow typing additional decimal points
-    if (elem.value.indexOf(".") != elem.value.lastIndexOf(".")) {
-        if (elem.value[selectionStart - 1] == ".") {
-            if (elem.value[selectionStart] == ".") {
-                // Typing over existing decimal point
-                elem.value = removeCharAt(elem.value, selectionStart);
-            } else {
-                elem.value = removeCharAt(elem.value, selectionStart - 1);
-                selectionStart--;
-                selectionEnd--;
-            }
-        }
-
-        while (elem.value.indexOf(".") != elem.value.lastIndexOf(".")) {
-            let index = elem.value.lastIndexOf(".");
-            elem.value = removeCharAt(elem.value, index);
-        }
-    }
-
-    // Ensure decimal point
-    if (elem.value.indexOf(".") == -1)
-        elem.value += ".00";
-
-    // Ensure leading zero
-    if (elem.value.indexOf(".") == 0 && selectionStart != 0) {
-        elem.value = "0" + elem.value;
-        selectionStart++;
-        selectionEnd++;
-    }
-
-    // Ensure 2 decimal places
-    let decimalPlaces = elem.value.length - elem.value.indexOf(".") - 1;
-    if (decimalPlaces > 2) {
-        if (selectionStart > elem.value.indexOf("."))
-            elem.value = removeCharAt(elem.value, selectionStart);
-
-        elem.value = elem.value.slice(0, elem.value.indexOf(".") + 3);
-    } else if (decimalPlaces < 2) {
-        elem.value = elem.value.padEnd(elem.value.indexOf(".") + 3, "0");
-    }
-
-    // Limit length
-    if (elem.value.length > 5) {
-        elem.value = removeCharAt(elem.value, selectionStart).slice(0, 5);
-    }
-
-    let angle;
-    let value = parseFloat(elem.value);
-
-    if (!isNaN(value) && !elem.value.match(/[^\d.]/)) {
-        if (value > 90.0) {
-            elem.value = "90.00";
-            angle = 90.0;
-        } else {
-            angle = value;
-        }
-        $(elem).removeClass("invalid-input");
-    } else {
-        angle = null;
-        $(elem).addClass("invalid-input");
-    }
-
-    elem.selectionStart = selectionStart;
-    elem.selectionEnd = selectionEnd;
-
-    return angle;
+    return parseFloat(elem.value);
 }
 
 function removeCharAt(string, index)
