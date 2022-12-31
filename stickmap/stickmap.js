@@ -718,7 +718,7 @@ function isValidCoordinate(x, y)
     return x*x + y*y <= CLAMP_RADIUS * CLAMP_RADIUS;
 }
 
-function getVisibleRadius(x, y)
+function getGateRadius(x, y)
 {
     // Hey, how's it going. I'm Jack, and today, I'm here to tell you about the word "octagon".
     // Now, "octagon" is an amazing shape that has 8 fantastic sides and 8 awesome angles.
@@ -751,7 +751,7 @@ function getVisibleRadius(x, y)
 
 function isVisibleCoordinate(x, y)
 {
-    return x*x + y*y <= getVisibleRadius(x, y)**2;
+    return x*x + y*y <= getGateRadius(x, y)**2;
 }
 
 function clampCoordinates(x, y)
@@ -761,7 +761,7 @@ function clampCoordinates(x, y)
         const scale = Math.min(radius / magnitude, 1.0);
         return [Math.trunc(x * scale), Math.trunc(y * scale)]
     };
-    const gateRadius = getVisibleRadius(x, y);
+    const gateRadius = getGateRadius(x, y);
     return clamp(...clamp(x, y, gateRadius), CLAMP_RADIUS);
 }
 
