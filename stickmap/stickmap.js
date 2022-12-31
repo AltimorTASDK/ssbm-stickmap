@@ -656,7 +656,8 @@ function filterCoord(elem)
                           [/(?<caret>)(?=\d*$(?<!\d{4}))/g, "0"],
                           [/$(?<!\d{4})/,                   "0000"],
                           [/^[2-9]/,                        "1"],
-                          [/(?<=^1.*)[1-9]/g,               "0"],
+                          [/(?<=^1(?<caret>).*)[1-9]/g,     "0"],
+                          [/^1(?!\.0+$)/,                   "0"],
                           [/(?<=.{6,})./g,                  ""]);
 
     return Math.round(parseFloat(elem.value) * CLAMP_RADIUS);
