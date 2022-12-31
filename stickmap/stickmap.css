@@ -105,6 +105,7 @@ input:focus {
 
 #color-hex {
     margin-left: 1px;
+    text-transform: uppercase;
 }
 
 input::-webkit-outer-spin-button,
@@ -117,8 +118,11 @@ input[type=text] {
     text-overflow: clip;
 }
 
-.horizontal-margin {
+.left-margin, .horizontal-margin {
     margin-left: 0.25em;
+}
+
+.right-margin, .horizontal-margin {
     margin-right: 0.25em;
 }
 

@@ -151,11 +151,20 @@ class Region
 
     updateColorPicker()
     {
-        let picker = "#";
+        let hex = "#";
         for (let i = 0; i < 3; i++)
-            picker += this.color[i].toString(16).padStart(2, "0");
+            hex += this.color[i].toString(16).padStart(2, "0");
 
-        $(this.element).find("#color-picker").val(picker);
+        $(this.element).find("#color-picker").val(hex);
+    }
+
+    updateColorHex()
+    {
+        let hex = "";
+        for (let i = 0; i < 4; i++)
+            hex += this.color[i].toString(16).padStart(2, "0");
+
+        $(this.element).find("#color-hex").val(hex);
     }
 
     getName()
@@ -441,8 +450,8 @@ class Region
         // Color input
         this.element.find("#color-picker").change(function() {
             region.color = parseColorHex(this.value);
-            region.element.find(`#color-hex`).val(this.value);
             region.updateColorSquare();
+            region.updateColorHex();
             drawStickMap();
         });
 
@@ -532,7 +541,7 @@ function parseColorHex(string)
     if (string.match(/[^0-9a-fA-F]/))
         return null;
 
-    let value = parseInt(string, 16);
+    let value = parseInt(string.padEnd(8, "F"), 16);
     return [24, 16, 8, 0].map(shift => (value >> shift) & 0xFF);
 }
 
@@ -609,32 +618,14 @@ function filterElemValue(elem, ...filters) {
 
 function filterColorHex(elem)
 {
-    let selectionStart = elem.selectionStart;
-    let selectionEnd = elem.selectionEnd;
+    filterElemValue(elem,
+        [/[^\da-fA-F]/g,                 ""],         // Remove invalid characters
+        [/(?<caret>).(?=.*$(?<=.{8}))/g, ""],         // Replace digit when over 8 digits
+        [/(?<caret>)(?=.*$(?<!.{8}))/g,  "0"],        // Insert 0 when backspacing
+        [/$(?<!.{8})/,                   "00000000"], // Ensure 8 digits
+        [/(?<=.{8,}).+$/,                ""]);        // Truncate to 8 digits
 
-    // Ensure pound sign
-    if (elem.value[0] != '#')
-        elem.value = "#" + elem.value;
-
-    if (elem.value.length > 9) {
-        // Limit length
-        elem.value = removeCharAt(elem.value, selectionStart).slice(0, 9);
-    } else if (elem.value.length < 9) {
-        // Ensure 4 octets
-        elem.value = elem.value.padEnd(9, "0");
-    }
-
-    let components = parseColorHex(elem.value);
-
-    if (components !== null)
-        $(elem).removeClass("invalid-input");
-    else
-        $(elem).addClass("invalid-input");
-
-    elem.selectionStart = selectionStart;
-    elem.selectionEnd = selectionEnd;
-
-    return components;
+    return parseColorHex(elem.value);
 }
 
 function filterCoord(elem)
