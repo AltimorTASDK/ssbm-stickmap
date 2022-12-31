@@ -575,9 +575,9 @@ function parseReplacementString(match, replacement)
     return replacement.replaceAll(
         /\$(?:((\d)?\d)|<([^>]*)>|([&`'$]))/g,
         (substring, groupNum, groupDigit, groupName, symbol) => {
-            if (groupNum in match)
+            if (groupNum && groupNum in match)
                 return match[groupNum];
-            if (groupDigit in match)
+            if (groupDigit && groupDigit in match)
                 return match[groupDigit];
             if (groupName !== void 0 && match.groups)
                 return match.groups[groupName] ?? "";
@@ -592,16 +592,21 @@ function parseReplacementString(match, replacement)
         });
 }
 
-function filterElemValue(elem, ...filters)
-{
+function filterElemValue(elem, ...filters) {
     let selectionStart = elem.selectionStart;
     let selectionEnd = elem.selectionEnd;
+    const caretIndex = selectionStart;
 
     for (const [pattern, replacement] of filters) {
         let totalLengthChange = 0;
-        const globalPattern = pattern.global ? pattern : new RegExp(pattern.flags + "g");
+        const globalPattern = new RegExp(pattern, pattern.flags.replaceAll(/[dg]/g, "") + "dg");
 
         for (const match of elem.value.matchAll(globalPattern)) {
+            // Allow patterns to check the caret position with a named capture group
+            if ((match.indices.groups?.caret?.[0] ?? caretIndex) != caretIndex)
+                continue;
+
+            // Adjust match index for previous replacements
             match.index += totalLengthChange;
 
             const matchStart = match.index;
@@ -612,15 +617,17 @@ function filterElemValue(elem, ...filters)
             const replaceEnd = matchStart + parsedReplacement.length;
             const lengthChange = replaceEnd - matchEnd;
 
-            if (selectionStart >= matchEnd)
-                selectionStart += lengthChange;
-            else if (selectionStart >= matchStart)
-                selectionStart = replaceEnd;
+            if (matchLength != 0) {
+                if (selectionStart >= matchEnd)
+                    selectionStart += lengthChange;
+                else if (selectionStart >= matchStart)
+                    selectionStart = replaceEnd;
 
-            if (selectionEnd >= matchEnd)
-                selectionEnd += lengthChange;
-            else if (selectionEnd >= matchStart)
-                selectionEnd = replaceEnd;
+                if (selectionEnd >= matchEnd)
+                    selectionEnd += lengthChange;
+                else if (selectionEnd >= matchStart)
+                    selectionEnd = replaceEnd;
+            }
 
             elem.value = splicedString(elem.value, matchStart, matchLength, parsedReplacement);
             totalLengthChange += lengthChange;
@@ -636,10 +643,14 @@ function filterElemValue(elem, ...filters)
 
 function filterCoord(elem)
 {
-    filterElemValue(elem, [/[^\d.]/g,      ""],
-                          [/\.{2,}/g,      "."],
-                          [/^\.\d/g,       "0"],
-                          [/(?<=\..*)\./g, ""]);
+    filterElemValue(elem, [/[^\d.]/g,             ""],
+                          [/(\d)(?<caret>)\./,    ".$1"],
+                          [/^(\d)(?<caret>)\d\./, "$1"],
+                          [/^(\d{,4})$/,          "0.$1"],
+                          [/(?<=^\d*)(?=\d{4}$)/, "."],
+                          [/\.{2,}/g,             "."],
+                          [/^\.\d\./g,            "0."],
+                          [/.(?=\d+\.)/g,         "0"]);
 
     let selectionStart = elem.selectionStart;
     let selectionEnd = elem.selectionEnd;
