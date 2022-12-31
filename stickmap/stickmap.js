@@ -639,38 +639,23 @@ function filterColorHex(elem)
 
 function filterCoord(elem)
 {
-    filterElemValue(elem, // Remove invalid characters
-                          [/[^\d.]/g,                       ""],
-                          // Automatically type digits after decimal
-                          [/(?<=^\d)(\d)(?<caret>)\./,      ".$1"],
-                          // Type over ones digit
-                          [/(?<=^\d)(?<caret>)\d(?=\.)/,    ""],
-                          // Automatically prepend decimal
-                          [/^(\d{0,4}$)/,                   "0.$1"],
-                          // Automatically insert decimal
-                          [/(?<=^\d+)(?=\d{4}$)/,           "."],
-                          // Remove duplicate decimal points
-                          [/(?<=\.)\./g,                    ""],
-                          // Input decimal value when decimal point is typed at start
-                          [/^\.\d\./g,                      "0."],
-                          // Prepend leading 0
-                          [/^(?=\.)/g,                      "0"],
-                          // Remove extra leading digits when decimal point is inserted
-                          [/.+(?=\d\.)/g,                   ""],
-                          // Overwrite next character when exceeding 6 characters
-                          [/(?<caret>).(?=.*$(?<=.{7}))/g,  ""],
-                          // Insert 0 when backspacing
-                          [/(?<caret>)(?=\d*$(?<!\d{4}))/g, "0"],
-                          // Ensure 4 decimal places
-                          [/$(?<!\d{4})/,                   "0000"],
-                          // Cap ones digit to 1
-                          [/^[2-9]/,                        "1"],
-                          // Zero out fractional digits when setting ones digit to 1
-                          [/(?<=^1(?<caret>).*)[1-9]/g,     "0"],
-                          // Zero out ones digit when setting fractional digits
-                          [/^1(?!\.0+$)/,                   "0"],
-                          // Truncate to 6 characters
-                          [/(?<=.{6,})./g,                  ""]);
+    filterElemValue(elem,
+        [/[^\d.]/g,                       ""],     // Remove invalid characters
+        [/(?<=^\d)(\d)(?<caret>)\./,      ".$1"],  // Automatically type digits after decimal
+        [/(?<=^\d)(?<caret>)\d(?=\.)/,    ""],     // Type over ones digit
+        [/^(\d{0,4}$)/,                   "0.$1"], // Automatically prepend decimal
+        [/(?<=^\d+)(?=\d{4}$)/,           "."],    // Automatically insert decimal
+        [/(?<=\.)\./g,                    ""],     // Remove duplicate decimal points
+        [/^\.\d\./g,                      "0."],   // Overwrite ones digit with decimal point
+        [/^(?=\.)/g,                      "0"],    // Prepend leading 0
+        [/.+(?=\d\.)/g,                   ""],     // Set new decimal point
+        [/(?<caret>).(?=.*$(?<=\d{5}))/g, ""],     // Replace digit when over 4 decimal places
+        [/(?<caret>)(?=.*$(?<!\d{4}))/g,  "0"],    // Insert 0 when backspacing
+        [/$(?<!\d{4})/,                   "0000"], // Ensure 4 decimal places
+        [/^[2-9]/,                        "1"],    // Cap ones digit to 1
+        [/(?<=^1(?<caret>).*)[1-9]/g,     "0"],    // Zero out fractional digits when inputting 1.0
+        [/^1(?!\.0+$)/,                   "0"],    // Modulo 1 when setting fractional digits
+        [/(?<=\d{4,})./g,                 ""]);    // Truncate to 4 decimal places
 
     return Math.round(parseFloat(elem.value) * CLAMP_RADIUS);
 }
