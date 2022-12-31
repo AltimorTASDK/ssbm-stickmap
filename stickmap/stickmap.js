@@ -440,48 +440,21 @@ class Region
 
         // Color input
         this.element.find("#color-picker").change(function() {
-            let color = this.value;
-            for (let i = 0; i < 3; i++) {
-                let elem = region.element.find(`#color-${i}`);
-                region.color[i] = parseInt(color.slice(1 + i * 2, 3 + i * 2), 16);
-                elem.val(region.color[i]);
-            }
-
+            region.color = parseColorHex(this.value);
+            region.element.find(`#color-hex`).val(this.value);
             region.updateColorSquare();
             drawStickMap();
         });
 
-        for (let i = 0; i < 4; i++) {
-            this.element.find(`#color-${i}`).on("input", function() {
-                let selectionStart = this.selectionStart;
-                let selectionEnd = this.selectionEnd;
-
-                if (this.value.length > 3) {
-                    this.value = removeCharAt(this.value, selectionStart);
-                    this.value = this.value.substring(0, 3);
-                }
-
-                let value = parseInt(this.value, 0);
-                if (!isNaN(value) && !this.value.match(/[^\d]/)) {
-                    if (value > 255)
-                        region.color[i] = this.value = 255;
-                    else
-                        region.color[i] = value;
-
-                    $(this).removeClass("invalid-input");
-                } else {
-                    $(this).addClass("invalid-input");
-                }
-
-                this.selectionStart = selectionStart;
-                this.selectionEnd = selectionEnd;
-
+        this.element.find(`#color-hex`).on("input", function() {
+            let color = filterColorHex(this);
+            if (color !== null) {
+                region.color = color;
                 region.updateColorSquare();
                 region.updateColorPicker();
-
                 drawStickMap();
-            });
-        }
+            }
+        });
 
         // Quadrant selection
         for (let i = 0; i < 4; i++) {
@@ -555,6 +528,47 @@ function roundCoord(elem)
     elem.selectionEnd = selectionEnd;
 }
 
+function parseColorHex(string)
+{
+    if (string.startsWith("#"))
+        string = string.slice(1);
+
+    if (string.match(/[^0-9a-fA-F]/))
+        return null;
+
+    let value = parseInt(string, 16);
+    return [24, 16, 8, 0].map(shift => (value >> shift) & 0xFF);
+}
+
+function filterColorHex(elem)
+{
+    let selectionStart = elem.selectionStart;
+    let selectionEnd = elem.selectionEnd;
+
+    // Ensure pound sign
+    if (elem.value[0] != '#')
+        elem.value = "#" + elem.value;
+
+    if (elem.value.length > 9) {
+        // Limit length
+        elem.value = removeCharAt(elem.value, selectionStart).slice(0, 9);
+    } else if (elem.value.length < 9) {
+        // Ensure 4 octets
+        elem.value = elem.value.padEnd(9, "0");
+    }
+
+    let components = parseColorHex(elem.value);
+
+    if (components !== null)
+        $(elem).removeClass("invalid-input");
+    else
+        $(elem).addClass("invalid-input");
+
+    elem.selectionStart = selectionStart;
+    elem.selectionEnd = selectionEnd;
+
+    return components;
+}
 
 function filterCoord(elem)
 {
@@ -578,8 +592,7 @@ function filterCoord(elem)
 
     if (elem.value.length > 6) {
         // Limit length
-        elem.value = removeCharAt(elem.value, selectionStart);
-        elem.value = elem.value.substring(0, 6);
+        elem.value = removeCharAt(elem.value, selectionStart).slice(0, 6);
     } else if (elem.value.length < 6) {
         // Ensure 4 decimal places
         elem.value = elem.value.padEnd(6, "0");
@@ -597,8 +610,8 @@ function filterCoord(elem)
         }
         $(elem).removeClass("invalid-input");
     } else {
-        $(elem).addClass("invalid-input");
         coordinate = null;
+        $(elem).addClass("invalid-input");
     }
 
     elem.selectionStart = selectionStart;
@@ -648,15 +661,14 @@ function filterAngle(elem)
         if (selectionStart > elem.value.indexOf("."))
             elem.value = removeCharAt(elem.value, selectionStart);
 
-        elem.value = elem.value.substring(0, elem.value.indexOf(".") + 3);
+        elem.value = elem.value.slice(0, elem.value.indexOf(".") + 3);
     } else if (decimalPlaces < 2) {
         elem.value = elem.value.padEnd(elem.value.indexOf(".") + 3, "0");
     }
 
     // Limit length
     if (elem.value.length > 5) {
-        elem.value = removeCharAt(elem.value, selectionStart);
-        elem.value = elem.value.substring(0, 5);
+        elem.value = removeCharAt(elem.value, selectionStart).slice(0, 5);
     }
 
     let angle;
@@ -671,8 +683,8 @@ function filterAngle(elem)
         }
         $(elem).removeClass("invalid-input");
     } else {
-        $(elem).addClass("invalid-input");
         angle = null;
+        $(elem).addClass("invalid-input");
     }
 
     elem.selectionStart = selectionStart;
@@ -990,7 +1002,6 @@ $(function()
     });
 
     let mouseX, mouseY;
-    let pageContainer = $("#page-container");
     let canvasContainer = $("#canvas-container");
     let coordinateSquare = $("#coordinate-square");
     let coordinateText = $("#coordinate-text");
