@@ -1033,12 +1033,10 @@ $(function()
 
         if (canvasSizeHorz >= canvasSizeVert) {
             // Horizontal
-            pageContainer.css("flex-direction", "row");
             body.addClass("horizontal");
             body.removeClass("vertical");
         } else {
             // Vertical
-            pageContainer.css("flex-direction", "column-reverse");
             body.removeClass("horizontal");
             body.addClass("vertical");
         }
