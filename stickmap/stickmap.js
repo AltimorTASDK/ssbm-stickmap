@@ -39,143 +39,9 @@ let canvas = null;
 let drawX = 0;
 let drawY = 0;
 
-function Region(name)
+class Region
 {
-    function filterCoord(elem, coordinate)
-    {
-        let selectionStart = elem.selectionStart;
-        let selectionEnd = elem.selectionEnd;
-
-        // Don't allow typing decimal points in the wrong spot
-        if (selectionStart != 2 && elem.value[selectionStart - 1] == ".") {
-            elem.value = removeCharAt(elem.value, selectionStart - 1);
-            selectionStart--;
-            selectionEnd--;
-        }
-
-        // Ensure leading zero
-        if (elem.value.indexOf(".") == 0)
-            elem.value = "0" + elem.value;
-
-        // Remove duplicate decimal points
-        while (elem.value.indexOf(".") != elem.value.lastIndexOf("."))
-            elem.value = removeCharAt(elem.value, elem.value.lastIndexOf("."));
-
-        if (elem.value.length > 6) {
-            // Limit length
-            elem.value = removeCharAt(elem.value, selectionStart);
-            elem.value = elem.value.substring(0, 6);
-        } else if (elem.value.length < 6) {
-            // Ensure 4 decimal places
-            elem.value = elem.value.padEnd(6, "0");
-        }
-
-        let value = parseFloat(elem.value, 0);
-        if (!isNaN(value) && !elem.value.match(/[^\d.]/)) {
-            if (value > 1.0) {
-                elem.value = "1.0000";
-                coordinate = CLAMP_RADIUS;
-            } else {
-                coordinate = Math.round(value * CLAMP_RADIUS);
-            }
-
-            $(elem).removeClass("invalid-input");
-        } else {
-            $(elem).addClass("invalid-input");
-        }
-
-        elem.selectionStart = selectionStart;
-        elem.selectionEnd = selectionEnd;
-
-        return coordinate;
-    }
-
-    function filterAngle(elem, angle)
-    {
-        let selectionStart = elem.selectionStart;
-        let selectionEnd = elem.selectionEnd;
-
-        // Don't allow typing additional decimal points
-        if (elem.value.indexOf(".") != elem.value.lastIndexOf(".")) {
-            if (elem.value[selectionStart - 1] == ".") {
-                if (elem.value[selectionStart] == ".") {
-                    // Typing over existing decimal point
-                    elem.value = removeCharAt(elem.value, selectionStart);
-                } else {
-                    elem.value = removeCharAt(elem.value, selectionStart - 1);
-                    selectionStart--;
-                    selectionEnd--;
-                }
-            }
-
-            while (elem.value.indexOf(".") != elem.value.lastIndexOf(".")) {
-                let index = elem.value.lastIndexOf(".");
-                elem.value = removeCharAt(elem.value, index);
-            }
-        }
-
-        // Ensure decimal point
-        if (elem.value.indexOf(".") == -1)
-            elem.value += ".00";
-
-        // Ensure leading zero
-        if (elem.value.indexOf(".") == 0 && selectionStart != 0) {
-            elem.value = "0" + elem.value;
-            selectionStart++;
-            selectionEnd++;
-        }
-
-        // Ensure 2 decimal places
-        let decimalPlaces = elem.value.length - elem.value.indexOf(".") - 1;
-        if (decimalPlaces > 2) {
-            if (selectionStart > elem.value.indexOf("."))
-                elem.value = removeCharAt(elem.value, selectionStart);
-
-            elem.value = elem.value.substring(0, elem.value.indexOf(".") + 3);
-        } else if (decimalPlaces < 2) {
-            elem.value = elem.value.padEnd(elem.value.indexOf(".") + 3, "0");
-        }
-
-        // Limit length
-        if (elem.value.length > 5) {
-            elem.value = removeCharAt(elem.value, selectionStart);
-            elem.value = elem.value.substring(0, 5);
-        }
-
-        let value = parseFloat(elem.value, 0);
-        if (!isNaN(value) && !elem.value.match(/[^\d.]/)) {
-            if (value > 90.0) {
-                elem.value = "90.00";
-                angle = 90.0;
-            } else {
-                angle = value;
-            }
-
-            $(elem).removeClass("invalid-input");
-        } else {
-            $(elem).addClass("invalid-input");
-        }
-
-        elem.selectionStart = selectionStart;
-        elem.selectionEnd = selectionEnd;
-
-        return angle;
-    }
-
-    function roundCoord(elem)
-    {
-        let value = parseFloat(elem.value, 0);
-        if (isNaN(value) || elem.value.match(/[^\d.]/))
-            return;
-
-        let selectionStart = elem.selectionStart;
-        let selectionEnd = elem.selectionEnd;
-        elem.value = (Math.round(value * CLAMP_RADIUS) / CLAMP_RADIUS).toFixed(4);
-        elem.selectionStart = selectionStart;
-        elem.selectionEnd = selectionEnd;
-    }
-
-    this.matchesQuadrants = function(x, y)
+    matchesQuadrants(x, y)
     {
         let quadrants = this.quadrants;
 
@@ -209,7 +75,7 @@ function Region(name)
         return true;
     }
 
-    this.containsCoordinate = function(x, y)
+    containsCoordinate(x, y)
     {
         if (!isValidCoordinate(x, y))
             return false;
@@ -241,9 +107,9 @@ function Region(name)
             return false;
 
         return true;
-    };
+    }
 
-    this.matchesCoordinate = function(x, y)
+    matchesCoordinate(x, y)
     {
         if (this.displayMode == DisplayMode.RimOnly && !isRimCoordinate(x, y))
             return false;
@@ -260,435 +126,558 @@ function Region(name)
             return false;
 
         return this.containsCoordinate(x, y);
-    };
+    }
 
-    this.getFillStyle = function()
+    getFillStyle()
     {
         let alpha = this.color[3] / 255;
         return "rgba(" + this.color.slice(0, 3).join(",") + "," + alpha + ")";
-    };
+    }
 
-    this.getFillStyleNoAlpha = function()
+    getFillStyleNoAlpha()
     {
         return "rgb(" + this.color.slice(0, 3).join(",") + ")";
-    };
+    }
 
-    this.updateColorSquare = function()
+    updateColorSquare()
     {
         let colorSquareLeft = $(this.element).find(".color-square-left");
         let colorSquareRight = $(this.element).find(".color-square-right");
         colorSquareLeft.css("background-color", this.getFillStyleNoAlpha());
         colorSquareRight.css("background-color", this.getFillStyle());
-    };
+    }
 
-    this.updateColorPicker = function()
+    updateColorPicker()
     {
         let picker = "#";
         for (let i = 0; i < 3; i++)
             picker += this.color[i].toString(16).padStart(2, "0");
 
         $(this.element).find("#picker").val(picker);
-    };
+    }
 
-    this.getName = function()
+    getName()
     {
         return this.element.find("#region-name").val();
-    };
-
-    this.element = template.clone();
-    this.color = [255, 255, 255, 255]
-    this.quadrants = [false, false, false, false]
-    this.displayMode = DisplayMode.Normal;
-    this.minX = this.minY = 0;
-    this.maxX = this.maxY = CLAMP_RADIUS;
-    this.angleMin = 0.0;
-    this.angleMax = 90.0;
-    this.magnitudeMin = 0;
-    this.magnitudeMax = CLAMP_RADIUS;
-
-    this.clicked = false;
-    this.dragging = false;
-    this.dragStart = 0;
-    this.dragOffset = 0;
-
-    this.scrolling = false;
-    this.scrollDistance = 0.0;
-
-    this.deleting = false;
-
-    // Set name
-    this.element.find("#region-name").val(name);
-
-    let region = this;
-
-    // Mouse dragging
-    this.element.find(".drag-handle").mousedown(function(event)
-    {
-        region.dragStart = event.pageY;
-        region.dragOffset = event.pageY - region.element.offset().top;
-        region.clicked = true;
-        region.scrolling = false;
-        $("body").css("user-select", "none");
-    });
-
-    function updateRegionOrder(mouseY)
-    {
-        for (let i = 0; i < regions.length; i++) {
-            if (regions[i] == region)
-                continue;
-
-            let otherElem = regions[i].element;
-            let otherTop = otherElem.offset().top;
-            let otherBottom = otherTop + otherElem.outerHeight();
-            let otherCenter = (otherTop + otherBottom) / 2;
-
-            if (mouseY > otherCenter) {
-                if (mouseY > otherBottom && i != 0)
-                    continue;
-
-                if (regions.indexOf(region) == i - 1)
-                    return;
-
-                regions.splice(regions.indexOf(region), 1);
-                regions.splice(i, 0, region);
-                moveDragPositionBar(i);
-                repositionRegions(region);
-                drawStickMap();
-            } else {
-                if (mouseY < otherTop && i != regions.length - 1)
-                    continue;
-
-                if (regions.indexOf(region) == i + 1)
-                    return;
-
-                regions.splice(regions.indexOf(region), 1);
-                regions.splice(i + 1, 0, region);
-                moveDragPositionBar(i + 1);
-                repositionRegions(region);
-                drawStickMap();
-            }
-
-            return;
-        }
     }
 
-    $(document).mousemove(event => {
-        if (!region.clicked)
-            return;
+    constructor(name)
+    {
+        this.element = template.clone();
+        this.color = [255, 255, 255, 255]
+        this.quadrants = [false, false, false, false]
+        this.displayMode = DisplayMode.Normal;
+        this.minX = this.minY = 0;
+        this.maxX = this.maxY = CLAMP_RADIUS;
+        this.angleMin = 0.0;
+        this.angleMax = 90.0;
+        this.magnitudeMin = 0;
+        this.magnitudeMax = CLAMP_RADIUS;
 
-        let elem = region.element;
-        let minDragDistance = emToPixels($("body"), MIN_DRAG_DISTANCE);
+        this.clicked = false;
+        this.dragging = false;
+        this.dragStart = 0;
+        this.dragOffset = 0;
 
-        if (!region.dragging && Math.abs(event.pageY - region.dragStart) > minDragDistance) {
-            region.dragging = true;
+        this.scrolling = false;
+        this.scrollDistance = 0.0;
 
-            lockRegionListHeight();
+        this.deleting = false;
 
-            elem.css("z-index", 100);
-            elem.animate({opacity: 0.5});
-            elem.css({height: elem.height()});
+        // Set name
+        this.element.find("#region-name").val(name);
 
-            let regionContent = elem.find(".region-content");
-            region.contentHeight = regionContent.height();
-            regionContent.animate({height: 0}, {queue: false, duration: 200});
+        let region = this;
 
-            moveDragPositionBar(regions.indexOf(region), false);
-            repositionRegions(region);
+        function updateFromInput(property, value)
+        {
+            if (value !== null && value !== region[property]) {
+                region[property] = value;
+                drawStickMap();
+            }
         }
 
-        if (!region.dragging)
-            return;
+        function updateRegionOrder(mouseY)
+        {
+            for (let i = 0; i < regions.length; i++) {
+                if (regions[i] == region)
+                    continue;
 
-        // Auto scroll
-        let userInput = $("#user-input");
-        let regionList = $("#region-list");
-        let regionHeader = elem.find(".region-header");
-        let autoScrollDistance = emToPixels($("body"), AUTO_SCROLL_DISTANCE);
+                let otherElem = regions[i].element;
+                let otherTop = otherElem.offset().top;
+                let otherBottom = otherTop + otherElem.outerHeight();
+                let otherCenter = (otherTop + otherBottom) / 2;
 
-        let autoScroll = () => {
-            if (!region.dragging || !region.scrolling)
+                if (mouseY > otherCenter) {
+                    if (mouseY > otherBottom && i != 0)
+                        continue;
+
+                    if (regions.indexOf(region) == i - 1)
+                        return;
+
+                    regions.splice(regions.indexOf(region), 1);
+                    regions.splice(i, 0, region);
+                    moveDragPositionBar(i);
+                    repositionRegions(region);
+                    drawStickMap();
+                } else {
+                    if (mouseY < otherTop && i != regions.length - 1)
+                        continue;
+
+                    if (regions.indexOf(region) == i + 1)
+                        return;
+
+                    regions.splice(regions.indexOf(region), 1);
+                    regions.splice(i + 1, 0, region);
+                    moveDragPositionBar(i + 1);
+                    repositionRegions(region);
+                    drawStickMap();
+                }
+
+                return;
+            }
+        }
+
+        // Mouse dragging
+        $(document).mousemove(function(event) {
+            if (!region.clicked)
                 return;
 
-            let scrollSpeed;
-            let distance = region.scrollDistance;
-            let top = -regionList.offset().top;
+            let elem = region.element;
+            let minDragDistance = emToPixels($("body"), MIN_DRAG_DISTANCE);
 
-            if (distance > 0) {
-                scrollSpeed = Math.min(distance, autoScrollDistance);
-                top += scrollSpeed * 2 - autoScrollDistance;
-                top += userInput.innerHeight() - regionHeader.height();
-            } else {
-                scrollSpeed = Math.max(distance, -autoScrollDistance);
-                top += scrollSpeed * 2 + autoScrollDistance;
+            if (!region.dragging && Math.abs(event.pageY - region.dragStart) > minDragDistance) {
+                region.dragging = true;
+
+                lockRegionListHeight();
+
+                elem.css("z-index", 100);
+                elem.animate({opacity: 0.5});
+                elem.css({height: elem.height()});
+
+                let regionContent = elem.find(".region-content");
+                region.contentHeight = regionContent.height();
+                regionContent.animate({height: 0}, {queue: false, duration: 200});
+
+                moveDragPositionBar(regions.indexOf(region), false);
+                repositionRegions(region);
             }
 
-            let topMax = regionList.innerHeight() - regionHeader.height();
-            elem.animate({top: Math.min(Math.max(top, 0), topMax)}, {
-                duration: 20,
-                easing: "linear"
-            });
+            if (!region.dragging)
+                return;
 
-            let parentTop = elem.parent().offset().top;
-            let mouseY = top + parentTop + region.dragOffset;
+            // Auto scroll
+            let userInput = $("#user-input");
+            let regionList = $("#region-list");
+            let regionHeader = elem.find(".region-header");
+            let autoScrollDistance = emToPixels($("body"), AUTO_SCROLL_DISTANCE);
 
-            userInput.animate({scrollTop: "+=" + scrollSpeed}, {
-                duration: 20,
-                easing: "linear",
-                complete: () => {
-                    updateRegionOrder(mouseY);
-                    autoScroll();
+            let autoScroll = () => {
+                if (!region.dragging || !region.scrolling)
+                    return;
+
+                let scrollSpeed;
+                let distance = region.scrollDistance;
+                let top = -regionList.offset().top;
+
+                if (distance > 0) {
+                    scrollSpeed = Math.min(distance, autoScrollDistance);
+                    top += scrollSpeed * 2 - autoScrollDistance;
+                    top += userInput.innerHeight() - regionHeader.height();
+                } else {
+                    scrollSpeed = Math.max(distance, -autoScrollDistance);
+                    top += scrollSpeed * 2 + autoScrollDistance;
                 }
-            });
-        }
 
-        let scrollAreaTop = userInput.offset().top;
-        let scrollAreaBottom = scrollAreaTop + userInput.innerHeight();
-        let headerTop = event.pageY - region.dragOffset;
-        let headerBottom = headerTop + regionHeader.height();
-        let distanceTop = Math.min(scrollAreaTop - headerTop, 0);
-        let distanceBottom = Math.min(headerBottom - scrollAreaBottom, 0);
+                let topMax = regionList.innerHeight() - regionHeader.height();
+                elem.animate({top: Math.min(Math.max(top, 0), topMax)}, {
+                    duration: 20,
+                    easing: "linear"
+                });
 
-        if (distanceTop > -autoScrollDistance) {
-            region.scrollDistance = -distanceTop - autoScrollDistance;
-        } else if (distanceBottom > -autoScrollDistance) {
-            region.scrollDistance = distanceBottom + autoScrollDistance;
-        } else {
-            let parentTop = elem.parent().offset().top;
-            let top = event.pageY - parentTop - region.dragOffset;
-            let topMax = userInput.height() - regionList.offset().top;
-            elem.css("top", Math.min(Math.max(top, 0), topMax));
+                let parentTop = elem.parent().offset().top;
+                let mouseY = top + parentTop + region.dragOffset;
 
-            if (region.scrolling) {
-                region.scrolling = false;
-                region.scrollDistance = 0.0;
-                userInput.stop();
-            }
-        }
-
-        if (!region.scrolling && region.scrollDistance != 0.0) {
-            region.scrolling = true;
-            autoScroll();
-        }
-
-        updateRegionOrder(event.pageY);
-    });
-
-    $(document).mouseup(() => {
-        if (!region.clicked)
-            return;
-
-        setTimeout(() => {
-            unlockRegionListHeight();
-            region.element.css("z-index", "auto");
-        }, 400);
-
-        repositionRegions();
-
-        region.element.css("height", "auto");
-        region.element.animate({opacity: 1.0}, {queue: false});
-
-        $("body").css("user-select", "initial");
-
-        let bar = $("#drag-position-bar");
-        bar.stop();
-        bar.animate({opacity: 0.0});
-
-        let regionContent = region.element.find(".region-content");
-        regionContent.animate({height: region.contentHeight}, {
-            duration: 200,
-            queue: false,
-            complete: () => regionContent.css("height", "auto")
-        });
-
-        region.clicked = false;
-        region.dragging = false;
-    });
-
-    // Delete button
-    this.element.find(".delete-button").click(function()
-    {
-        if (region.deleting)
-            return;
-
-        region.deleting = true;
-
-        regions.splice(regions.indexOf(region), 1);
-        repositionRegions();
-        drawStickMap();
-
-        region.element.animate({height: 0}, {
-            queue: false,
-            complete: () => region.element.remove()
-        });
-    });
-
-    // Move up button
-    this.element.find(".move-button-up").click(function()
-    {
-        let index = regions.indexOf(region);
-        if (index == regions.length - 1)
-            return;
-
-        let temp = regions[index + 1];
-        regions[index + 1] = region;
-        regions[index] = temp;
-
-        lockRegionListHeight();
-        repositionRegions();
-        drawStickMap();
-
-        region.element.css("z-index", "50");
-        setTimeout(() => {
-            unlockRegionListHeight();
-            region.element.css("z-index", "auto");
-        }, 400);
-    });
-
-    // Move down button
-    this.element.find(".move-button-down").click(function()
-    {
-        let index = regions.indexOf(region);
-        if (index == 0)
-            return;
-
-        let temp = regions[index - 1];
-        regions[index - 1] = region;
-        regions[index] = temp;
-
-        lockRegionListHeight();
-        repositionRegions();
-        drawStickMap();
-
-        region.element.css("z-index", "50");
-        setTimeout(() => {
-            unlockRegionListHeight();
-            region.element.css("z-index", "auto");
-        }, 400);
-    });
-
-    // Color input
-    this.element.find("#picker").change(function()
-    {
-        let color = this.value;
-        for (let i = 0; i < 3; i++) {
-            let elem = region.element.find("#color #" + i);
-            region.color[i] = parseInt(color.slice(1 + i * 2, 3 + i * 2), 16);
-            elem.val(region.color[i]);
-        }
-
-        region.updateColorSquare();
-        drawStickMap();
-    });
-
-    for (let i = 0; i < 4; i++) {
-        this.element.find("#color #" + i).on("input", function()
-        {
-            let selectionStart = this.selectionStart;
-            let selectionEnd = this.selectionEnd;
-
-            if (this.value.length > 3) {
-                this.value = removeCharAt(this.value, selectionStart);
-                this.value = this.value.substring(0, 3);
+                userInput.animate({scrollTop: "+=" + scrollSpeed}, {
+                    duration: 20,
+                    easing: "linear",
+                    complete: () => {
+                        updateRegionOrder(mouseY);
+                        autoScroll();
+                    }
+                });
             }
 
-            let value = parseInt(this.value, 0);
-            if (!isNaN(value) && !this.value.match(/[^\d]/)) {
-                if (value > 255)
-                    region.color[i] = this.value = 255;
-                else
-                    region.color[i] = value;
+            let scrollAreaTop = userInput.offset().top;
+            let scrollAreaBottom = scrollAreaTop + userInput.innerHeight();
+            let headerTop = event.pageY - region.dragOffset;
+            let headerBottom = headerTop + regionHeader.height();
+            let distanceTop = Math.min(scrollAreaTop - headerTop, 0);
+            let distanceBottom = Math.min(headerBottom - scrollAreaBottom, 0);
 
-                $(this).removeClass("invalid-input");
+            if (distanceTop > -autoScrollDistance) {
+                region.scrollDistance = -distanceTop - autoScrollDistance;
+            } else if (distanceBottom > -autoScrollDistance) {
+                region.scrollDistance = distanceBottom + autoScrollDistance;
             } else {
-                $(this).addClass("invalid-input");
+                let parentTop = elem.parent().offset().top;
+                let top = event.pageY - parentTop - region.dragOffset;
+                let topMax = userInput.height() - regionList.offset().top;
+                elem.css("top", Math.min(Math.max(top, 0), topMax));
+
+                if (region.scrolling) {
+                    region.scrolling = false;
+                    region.scrollDistance = 0.0;
+                    userInput.stop();
+                }
             }
 
-            this.selectionStart = selectionStart;
-            this.selectionEnd = selectionEnd;
+            if (!region.scrolling && region.scrollDistance != 0.0) {
+                region.scrolling = true;
+                autoScroll();
+            }
+
+            updateRegionOrder(event.pageY);
+        });
+
+        $(document).mouseup(function(event) {
+            if (!region.clicked)
+                return;
+
+            setTimeout(() => {
+                unlockRegionListHeight();
+                region.element.css("z-index", "auto");
+            }, 400);
+
+            repositionRegions();
+
+            region.element.css("height", "auto");
+            region.element.animate({opacity: 1.0}, {queue: false});
+
+            $("body").css("user-select", "initial");
+
+            let bar = $("#drag-position-bar");
+            bar.stop();
+            bar.animate({opacity: 0.0});
+
+            let regionContent = region.element.find(".region-content");
+            regionContent.animate({height: region.contentHeight}, {
+                duration: 200,
+                queue: false,
+                complete: () => regionContent.css("height", "auto")
+            });
+
+            region.clicked = false;
+            region.dragging = false;
+        });
+
+        this.element.find(".drag-handle").mousedown(function(event) {
+            region.dragStart = event.pageY;
+            region.dragOffset = event.pageY - region.element.offset().top;
+            region.clicked = true;
+            region.scrolling = false;
+            $("body").css("user-select", "none");
+        });
+
+        // Delete button
+        this.element.find(".delete-button").click(function() {
+            if (region.deleting)
+                return;
+
+            region.deleting = true;
+
+            regions.splice(regions.indexOf(region), 1);
+            repositionRegions();
+            drawStickMap();
+
+            region.element.animate({height: 0}, {
+                queue: false,
+                complete: () => region.element.remove()
+            });
+        });
+
+        // Move up button
+        this.element.find(".move-button-up").click(function() {
+            let index = regions.indexOf(region);
+            if (index == regions.length - 1)
+                return;
+
+            regions[index] = regions[index + 1];
+            regions[index + 1] = region;
+
+            lockRegionListHeight();
+            repositionRegions();
+            drawStickMap();
+
+            region.element.css("z-index", "50");
+            setTimeout(() => {
+                unlockRegionListHeight();
+                region.element.css("z-index", "auto");
+            }, 400);
+        });
+
+        // Move down button
+        this.element.find(".move-button-down").click(function() {
+            let index = regions.indexOf(region);
+            if (index == 0)
+                return;
+
+            regions[index] = regions[index - 1];
+            regions[index - 1] = region;
+
+            lockRegionListHeight();
+            repositionRegions();
+            drawStickMap();
+
+            region.element.css("z-index", "50");
+            setTimeout(() => {
+                unlockRegionListHeight();
+                region.element.css("z-index", "auto");
+            }, 400);
+        });
+
+        // Color input
+        this.element.find("#picker").change(function() {
+            let color = this.value;
+            for (let i = 0; i < 3; i++) {
+                let elem = region.element.find(`#color #${i}`);
+                region.color[i] = parseInt(color.slice(1 + i * 2, 3 + i * 2), 16);
+                elem.val(region.color[i]);
+            }
 
             region.updateColorSquare();
-            region.updateColorPicker();
-
             drawStickMap();
         });
-    }
 
-    // Quadrant selection
-    for (let i = 0; i < 4; i++) {
-        this.element.find("#quadrant #" + i).click(function()
-        {
-            $(this).toggleClass("quadrant-selected");
-            region.quadrants[i] = !region.quadrants[i];
-            drawStickMap();
+        for (let i = 0; i < 4; i++) {
+            this.element.find(`#color #${i}`).on("input", function() {
+                let selectionStart = this.selectionStart;
+                let selectionEnd = this.selectionEnd;
+
+                if (this.value.length > 3) {
+                    this.value = removeCharAt(this.value, selectionStart);
+                    this.value = this.value.substring(0, 3);
+                }
+
+                let value = parseInt(this.value, 0);
+                if (!isNaN(value) && !this.value.match(/[^\d]/)) {
+                    if (value > 255)
+                        region.color[i] = this.value = 255;
+                    else
+                        region.color[i] = value;
+
+                    $(this).removeClass("invalid-input");
+                } else {
+                    $(this).addClass("invalid-input");
+                }
+
+                this.selectionStart = selectionStart;
+                this.selectionEnd = selectionEnd;
+
+                region.updateColorSquare();
+                region.updateColorPicker();
+
+                drawStickMap();
+            });
+        }
+
+        // Quadrant selection
+        for (let i = 0; i < 4; i++) {
+            this.element.find(`#quadrant #${i}`).click(function() {
+                $(this).toggleClass("quadrant-selected");
+                region.quadrants[i] = !region.quadrants[i];
+                drawStickMap();
+            });
+        }
+
+        // Display mode
+        this.element.find("#display-mode").change(function() {
+            updateFromInput('displayMode', this.value);
         });
+
+        // Coordinate input
+        this.element.find("#x #min").on("input", function() {
+            updateFromInput('minX', filterCoord(this));
+        });
+
+        this.element.find("#x #max").on("input", function() {
+            updateFromInput('maxX', filterCoord(this));
+        });
+
+        this.element.find("#y #min").on("input", function() {
+            updateFromInput('minY', filterCoord(this));
+        });
+
+        this.element.find("#y #max").on("input", function() {
+            updateFromInput('max', filterCoord(this));
+        });
+
+        this.element.find("#x #min").change(function() { roundCoord(this); });
+        this.element.find("#x #max").change(function() { roundCoord(this); });
+        this.element.find("#y #min").change(function() { roundCoord(this); });
+        this.element.find("#y #max").change(function() { roundCoord(this); });
+        this.element.find("#magnitude #min").change(function() { roundCoord(this); });
+        this.element.find("#magnitude #max").change(function() { roundCoord(this); });
+
+        // Angle input
+        this.element.find("#angle #min").on("input", function() {
+            updateFromInput('angleMin', filterAngle(this));
+        });
+
+        this.element.find("#angle #max").on("input", function() {
+            updateFromInput('angleMax', filterAngle(this));
+        });
+
+        // Magnitude input
+        this.element.find("#magnitude #min").on("input", function() {
+            updateFromInput('magnitudeMin', filterCoord(this));
+        });
+
+        this.element.find("#magnitude #max").on("input", function() {
+            updateFromInput('magnitudeMax', filterCoord(this));
+        });
+
+        this.element.prependTo("#region-list");
+    }
+}
+
+function roundCoord(elem)
+{
+    let value = parseFloat(elem.value);
+    if (isNaN(value) || elem.value.match(/[^\d.]/))
+        return;
+
+    let selectionStart = elem.selectionStart;
+    let selectionEnd = elem.selectionEnd;
+    elem.value = (Math.round(value * CLAMP_RADIUS) / CLAMP_RADIUS).toFixed(4);
+    elem.selectionStart = selectionStart;
+    elem.selectionEnd = selectionEnd;
+}
+
+
+function filterCoord(elem)
+{
+    let selectionStart = elem.selectionStart;
+    let selectionEnd = elem.selectionEnd;
+
+    // Don't allow typing decimal points in the wrong spot
+    if (selectionStart != 2 && elem.value[selectionStart - 1] == ".") {
+        elem.value = removeCharAt(elem.value, selectionStart - 1);
+        selectionStart--;
+        selectionEnd--;
     }
 
-    // Display mode
-    this.element.find("#display-mode").change(function()
-    {
-        region.displayMode = this.value;
-        drawStickMap();
-    });
+    // Ensure leading zero
+    if (elem.value.indexOf(".") == 0)
+        elem.value = "0" + elem.value;
 
-    // Coordinate input
-    this.element.find("#x #min").on("input", function()
-    {
-        region.minX = filterCoord(this, region.minX);
-        drawStickMap();
-    });
+    // Remove duplicate decimal points
+    while (elem.value.indexOf(".") != elem.value.lastIndexOf("."))
+        elem.value = removeCharAt(elem.value, elem.value.lastIndexOf("."));
 
-    this.element.find("#x #max").on("input", function()
-    {
-        region.maxX = filterCoord(this, region.maxX);
-        drawStickMap();
-    });
+    if (elem.value.length > 6) {
+        // Limit length
+        elem.value = removeCharAt(elem.value, selectionStart);
+        elem.value = elem.value.substring(0, 6);
+    } else if (elem.value.length < 6) {
+        // Ensure 4 decimal places
+        elem.value = elem.value.padEnd(6, "0");
+    }
 
-    this.element.find("#y #min").on("input", function()
-    {
-        region.minY = filterCoord(this, region.minY);
-        drawStickMap();
-    });
+    let coordinate;
+    let value = parseFloat(elem.value);
 
-    this.element.find("#y #max").on("input", function()
-    {
-        region.maxY = filterCoord(this, region.maxY);
-        drawStickMap();
-    });
+    if (!isNaN(value) && !elem.value.match(/[^\d.]/)) {
+        if (value > 1.0) {
+            elem.value = "1.0000";
+            coordinate = CLAMP_RADIUS;
+        } else {
+            coordinate = Math.round(value * CLAMP_RADIUS);
+        }
+        $(elem).removeClass("invalid-input");
+    } else {
+        $(elem).addClass("invalid-input");
+        coordinate = null;
+    }
 
-    this.element.find("#x #min").change(function() { roundCoord(this); });
-    this.element.find("#x #max").change(function() { roundCoord(this); });
-    this.element.find("#y #min").change(function() { roundCoord(this); });
-    this.element.find("#y #max").change(function() { roundCoord(this); });
-    this.element.find("#magnitude #min").change(function() { roundCoord(this); });
-    this.element.find("#magnitude #max").change(function() { roundCoord(this); });
+    elem.selectionStart = selectionStart;
+    elem.selectionEnd = selectionEnd;
 
-    // Angle input
-    this.element.find("#angle #min").on("input", function()
-    {
-        region.angleMin = filterAngle(this, region.angleMin);
-        drawStickMap();
-    });
+    return coordinate;
+}
 
-    this.element.find("#angle #max").on("input", function()
-    {
-        region.angleMax = filterAngle(this, region.angleMax);
-        drawStickMap();
-    });
+function filterAngle(elem)
+{
+    let selectionStart = elem.selectionStart;
+    let selectionEnd = elem.selectionEnd;
 
-    // Magnitude input
-    this.element.find("#magnitude #min").on("input", function()
-    {
-        region.magnitudeMin = filterCoord(this, region.magnitudeMin);
-        drawStickMap();
-    });
+    // Don't allow typing additional decimal points
+    if (elem.value.indexOf(".") != elem.value.lastIndexOf(".")) {
+        if (elem.value[selectionStart - 1] == ".") {
+            if (elem.value[selectionStart] == ".") {
+                // Typing over existing decimal point
+                elem.value = removeCharAt(elem.value, selectionStart);
+            } else {
+                elem.value = removeCharAt(elem.value, selectionStart - 1);
+                selectionStart--;
+                selectionEnd--;
+            }
+        }
 
-    this.element.find("#magnitude #max").on("input", function()
-    {
-        region.magnitudeMax = filterCoord(this, region.magnitudeMax);
-        drawStickMap();
-    });
+        while (elem.value.indexOf(".") != elem.value.lastIndexOf(".")) {
+            let index = elem.value.lastIndexOf(".");
+            elem.value = removeCharAt(elem.value, index);
+        }
+    }
 
-    this.element.prependTo("#region-list");
+    // Ensure decimal point
+    if (elem.value.indexOf(".") == -1)
+        elem.value += ".00";
+
+    // Ensure leading zero
+    if (elem.value.indexOf(".") == 0 && selectionStart != 0) {
+        elem.value = "0" + elem.value;
+        selectionStart++;
+        selectionEnd++;
+    }
+
+    // Ensure 2 decimal places
+    let decimalPlaces = elem.value.length - elem.value.indexOf(".") - 1;
+    if (decimalPlaces > 2) {
+        if (selectionStart > elem.value.indexOf("."))
+            elem.value = removeCharAt(elem.value, selectionStart);
+
+        elem.value = elem.value.substring(0, elem.value.indexOf(".") + 3);
+    } else if (decimalPlaces < 2) {
+        elem.value = elem.value.padEnd(elem.value.indexOf(".") + 3, "0");
+    }
+
+    // Limit length
+    if (elem.value.length > 5) {
+        elem.value = removeCharAt(elem.value, selectionStart);
+        elem.value = elem.value.substring(0, 5);
+    }
+
+    let angle;
+    let value = parseFloat(elem.value);
+
+    if (!isNaN(value) && !elem.value.match(/[^\d.]/)) {
+        if (value > 90.0) {
+            elem.value = "90.00";
+            angle = 90.0;
+        } else {
+            angle = value;
+        }
+        $(elem).removeClass("invalid-input");
+    } else {
+        $(elem).addClass("invalid-input");
+        angle = null;
+    }
+
+    elem.selectionStart = selectionStart;
+    elem.selectionEnd = selectionEnd;
+
+    return angle;
 }
 
 function removeCharAt(string, i)
