@@ -643,46 +643,22 @@ function filterElemValue(elem, ...filters) {
 
 function filterCoord(elem)
 {
-    filterElemValue(elem, [/[^\d.]/g,             ""],
-                          [/(\d)(?<caret>)\./,    ".$1"],
-                          [/^(\d)(?<caret>)\d\./, "$1"],
-                          [/^(\d{,4})$/,          "0.$1"],
-                          [/(?<=^\d*)(?=\d{4}$)/, "."],
-                          [/\.{2,}/g,             "."],
-                          [/^\.\d\./g,            "0."],
-                          [/.(?=\d+\.)/g,         "0"]);
+    filterElemValue(elem, [/[^\d.]/g,                      ""],
+                          [/^(\d)(\d)(?<caret>)\./,        "$1.$2"],
+                          [/^(\d)(?<caret>)\d\./,          "$1"],
+                          [/^(\d{,4})$/,                   "0.$1"],
+                          [/(?<=^\d*)(?=\d{4}$)/,          "."],
+                          [/\.{2,}/g,                      "."],
+                          [/^\.\d\./g,                     "0."],
+                          [/^(?=\.)/g,                     "0"],
+                          [/.+(\d+\.)/g,                   "$1"],
+                          [/(?<caret>).(?=.*$(?<=.{7}))/g, ""],
+                          [/$(?<=\.\d{0,3})/,              "0000"],
+                          [/^[2-9]/,                       "1"],
+                          [/(?<=^1.*)[1-9]/g,              "0"],
+                          [/(?<=.{6,})./g,                 ""]);
 
-    let selectionStart = elem.selectionStart;
-    let selectionEnd = elem.selectionEnd;
-
-    if (elem.value.length > 6) {
-        // Limit length
-        elem.value = removeCharAt(elem.value, elem.selectionStart).slice(0, 6);
-    } else if (elem.value.length < 6) {
-        // Ensure 4 decimal places
-        elem.value = elem.value.padEnd(6, "0");
-    }
-
-    let coordinate;
-    let value = parseFloat(elem.value);
-
-    if (!isNaN(value) && !elem.value.match(/[^\d.]/)) {
-        if (value > 1.0) {
-            elem.value = "1.0000";
-            coordinate = CLAMP_RADIUS;
-        } else {
-            coordinate = Math.round(value * CLAMP_RADIUS);
-        }
-        $(elem).removeClass("invalid-input");
-    } else {
-        coordinate = null;
-        $(elem).addClass("invalid-input");
-    }
-
-    elem.selectionStart = selectionStart;
-    elem.selectionEnd = selectionEnd;
-
-    return coordinate;
+    return Math.round(parseFloat(elem.value) * CLAMP_RADIUS);
 }
 
 function filterAngle(elem)
