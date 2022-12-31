@@ -570,29 +570,83 @@ function filterColorHex(elem)
     return components;
 }
 
-function filterCoord(elem)
+function parseReplacementString(match, replacement)
+{
+    return replacement.replaceAll(
+        /\$(?:((\d)?\d)|<([^>]*)>|([&`'$]))/g,
+        (substring, groupNum, groupDigit, groupName, symbol) => {
+            if (groupNum in match)
+                return match[groupNum];
+            if (groupDigit in match)
+                return match[groupDigit];
+            if (groupName !== void 0 && match.groups)
+                return match.groups[groupName] ?? "";
+
+            switch (symbol) {
+            case "$": return "$";
+            case "&": return match[0];
+            case "`": return match.input.slice(0, match.index);
+            case "'": return match.input.slice(match.index + match[0].length);
+            default:  return substring;
+            }
+        });
+}
+
+function filterElemValue(elem, ...filters)
 {
     let selectionStart = elem.selectionStart;
     let selectionEnd = elem.selectionEnd;
 
-    // Don't allow typing decimal points in the wrong spot
-    if (selectionStart != 2 && elem.value[selectionStart - 1] == ".") {
-        elem.value = removeCharAt(elem.value, selectionStart - 1);
-        selectionStart--;
-        selectionEnd--;
+    for (const [pattern, replacement] of filters) {
+        let totalLengthChange = 0;
+        const globalPattern = pattern.global ? pattern : new RegExp(pattern.flags + "g");
+
+        for (const match of elem.value.matchAll(globalPattern)) {
+            match.index += totalLengthChange;
+
+            const matchStart = match.index;
+            const matchLength = match[0].length;
+            const matchEnd = matchStart + matchLength;
+
+            const parsedReplacement = parseReplacementString(match, replacement);
+            const replaceEnd = matchStart + parsedReplacement.length;
+            const lengthChange = replaceEnd - matchEnd;
+
+            if (selectionStart >= matchEnd)
+                selectionStart += lengthChange;
+            else if (selectionStart >= matchStart)
+                selectionStart = replaceEnd;
+
+            if (selectionEnd >= matchEnd)
+                selectionEnd += lengthChange;
+            else if (selectionEnd >= matchStart)
+                selectionEnd = replaceEnd;
+
+            elem.value = splicedString(elem.value, matchStart, matchLength, parsedReplacement);
+            totalLengthChange += lengthChange;
+
+            if (!pattern.global)
+                break;
+        }
     }
 
-    // Ensure leading zero
-    if (elem.value.indexOf(".") == 0)
-        elem.value = "0" + elem.value;
+    elem.selectionStart = selectionStart;
+    elem.selectionEnd = selectionEnd;
+}
 
-    // Remove duplicate decimal points
-    while (elem.value.indexOf(".") != elem.value.lastIndexOf("."))
-        elem.value = removeCharAt(elem.value, elem.value.lastIndexOf("."));
+function filterCoord(elem)
+{
+    filterElemValue(elem, [/[^\d.]/g,      ""],
+                          [/\.{2,}/g,      "."],
+                          [/^\.\d/g,       "0"],
+                          [/(?<=\..*)\./g, ""]);
+
+    let selectionStart = elem.selectionStart;
+    let selectionEnd = elem.selectionEnd;
 
     if (elem.value.length > 6) {
         // Limit length
-        elem.value = removeCharAt(elem.value, selectionStart).slice(0, 6);
+        elem.value = removeCharAt(elem.value, elem.selectionStart).slice(0, 6);
     } else if (elem.value.length < 6) {
         // Ensure 4 decimal places
         elem.value = elem.value.padEnd(6, "0");
@@ -693,11 +747,19 @@ function filterAngle(elem)
     return angle;
 }
 
-function removeCharAt(string, i)
+function removeCharAt(string, index)
 {
-    let array = string.split("");
-    array.splice(i, 1);
-    return array.join("");
+    return string.slice(0, index) + string.slice(index + 1);
+}
+
+function splicedString(string, start, deleteCount, ...toInsert)
+{
+    let result = string.slice(0, start) + toInsert.join("");
+
+    if (deleteCount !== void 0)
+        return result + string.slice(start + deleteCount);
+    else
+        return result;
 }
 
 function emToPixels(elem, em)
