@@ -151,19 +151,13 @@ class Region
 
     updateColorPicker()
     {
-        let hex = "#";
-        for (let i = 0; i < 3; i++)
-            hex += this.color[i].toString(16).padStart(2, "0");
-
+        const hex = "#" + this.color.slice(0, 3).map(x => x.toString(16).padStart(2, "0")).join("");
         $(this.element).find("#color-picker").val(hex);
     }
 
     updateColorHex()
     {
-        let hex = "";
-        for (let i = 0; i < 4; i++)
-            hex += this.color[i].toString(16).padStart(2, "0");
-
+        const hex = this.color.map(x => x.toString(16).padStart(2, "0")).join("");
         $(this.element).find("#color-hex").val(hex);
     }
 
@@ -202,7 +196,7 @@ class Region
 
         function updateFromInput(property, value)
         {
-            if (value !== null && value !== region[property]) {
+            if (value !== region[property]) {
                 region[property] = value;
                 drawStickMap();
             }
@@ -449,20 +443,17 @@ class Region
 
         // Color input
         this.element.find("#color-picker").change(function() {
-            region.color = parseColorHex(this.value);
+            region.color = [...parseColorHex(this.value), region.color[3]];
             region.updateColorSquare();
             region.updateColorHex();
             drawStickMap();
         });
 
         this.element.find(`#color-hex`).on("input", function() {
-            let color = filterColorHex(this);
-            if (color !== null) {
-                region.color = color;
-                region.updateColorSquare();
-                region.updateColorPicker();
-                drawStickMap();
-            }
+            region.color = filterColorHex(this);
+            region.updateColorSquare();
+            region.updateColorPicker();
+            drawStickMap();
         });
 
         // Quadrant selection
@@ -538,11 +529,7 @@ function parseColorHex(string)
     if (string.startsWith("#"))
         string = string.slice(1);
 
-    if (string.match(/[^0-9a-fA-F]/))
-        return null;
-
-    let value = parseInt(string.padEnd(8, "F"), 16);
-    return [24, 16, 8, 0].map(shift => (value >> shift) & 0xFF);
+    return string.match(/../g).map(octet => parseInt(octet, 16));
 }
 
 function parseReplacementString(match, replacement)
