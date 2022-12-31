@@ -595,11 +595,11 @@ function parseReplacementString(match, replacement)
 function filterElemValue(elem, ...filters) {
     let selectionStart = elem.selectionStart;
     let selectionEnd = elem.selectionEnd;
-    const caretIndex = selectionStart;
 
     for (const [pattern, replacement] of filters) {
         let totalLengthChange = 0;
         const globalPattern = new RegExp(pattern, pattern.flags.replaceAll(/[dg]/g, "") + "dg");
+        const caretIndex = selectionStart;
 
         for (const match of elem.value.matchAll(globalPattern)) {
             // Allow patterns to check the caret position with a named capture group
