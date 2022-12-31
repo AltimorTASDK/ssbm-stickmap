@@ -28,7 +28,7 @@ select {
 
 input {
     border-radius: 0.15rem;
-    padding: 0.1em;
+    padding: 0.1em 0.2em;
     background-color: #202020;
     font-family: 'Monaco', 'Consolas', 'Courier New', monospace;
     font-size: inherit;
@@ -47,78 +47,59 @@ input:focus {
     gap: 1px;
 }
 
-.quadrant {
+.quadrant::before {
+    content: attr(text);
     font-size: 120%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.quadrant {
+    appearance: none;
+    margin: 0;
+    padding: 0;
     border-radius: 0.15rem;
-    width: 1em;
-    height: 1em;
-    text-align: center;
-    line-height: 1em;
+    width: 1.2em;
+    height: 1.2em;
     background-color: #202020;
+    position: relative;
 }
 
 .quadrant:hover {
     color: white;
     background-color: #505050;
-    cursor: pointer;
 }
 
-.quadrant-selected {
+.quadrant:checked {
     background-color: #59bde7;
     color: #202020;
 }
 
-.quadrant-selected:hover {
+.quadrant:hover:checked {
     background-color: #9afbff;
-    color: #202020;
-}
-
-.checkbox:before {
-    display: block;
-    content: "";
-    border-radius: 0.15rem;
-    width: 1.5em;
-    height: 1.5em;
-    text-align: center;
-    line-height: 1.5em;
-    background-color: #202020;
-    margin: 0.5px;
-}
-
-.checkbox:hover:before {
-    background-color: #505050;
-    cursor: pointer;
-}
-
-.checkbox-selected:before {
-    content: "\2714"; /* heavy checkmark */
-    background-color: #59bde7;
-    color: #202020;
-}
-
-.checkbox-selected:hover:before {
-    background-color: #9afbff;
-    color: #202020;
 }
 
 .invalid-input {
     box-shadow: 0 0 0 2px red;
 }
 
-.color-square-left {
-    border-top-left-radius: 0.15rem;
-    border-bottom-left-radius: 0.15rem;
+.color-square-left, .color-square-right {
     width: 0.75em;
     height: 1.5em;
-    background-color: #ffffff;
+    border-radius: 0.15rem;
+    background-color: white;
+}
+
+.color-square-left {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
 }
 
 .color-square-right {
-    border-top-right-radius: 0.15rem;
-    border-bottom-right-radius: 0.15rem;
-    width: 0.75em;
-    height: 1.5em;
-    background-color: rgba(255, 255, 255, 128);
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
 }
 
 input::-webkit-outer-spin-button,

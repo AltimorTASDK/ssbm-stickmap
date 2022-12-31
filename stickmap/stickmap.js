@@ -485,9 +485,8 @@ class Region
 
         // Quadrant selection
         for (let i = 0; i < 4; i++) {
-            this.element.find(`#quadrant #${i}`).click(function() {
-                $(this).toggleClass("quadrant-selected");
-                region.quadrants[i] = !region.quadrants[i];
+            this.element.find(`#quadrant${i + 1}`).change(function() {
+                region.quadrants[i] = this.checked;
                 drawStickMap();
             });
         }
