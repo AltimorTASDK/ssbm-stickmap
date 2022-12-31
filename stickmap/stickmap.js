@@ -1,3 +1,5 @@
+"use strict";
+
 const DEADZONE = 22;
 
 // Minimum framerate to maintain while redrawing canvas
