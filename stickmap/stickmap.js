@@ -517,13 +517,9 @@ class Region
 
 function roundCoord(elem)
 {
-    let value = parseFloat(elem.value);
-    if (isNaN(value) || elem.value.match(/[^\d.]/))
-        return;
-
     let selectionStart = elem.selectionStart;
     let selectionEnd = elem.selectionEnd;
-    elem.value = (Math.round(value * CLAMP_RADIUS) / CLAMP_RADIUS).toFixed(4);
+    elem.value = (Math.round(parseFloat(elem.value) * CLAMP_RADIUS) / CLAMP_RADIUS).toFixed(4);
     elem.selectionStart = selectionStart;
     elem.selectionEnd = selectionEnd;
 }
