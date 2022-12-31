@@ -41,6 +41,12 @@ input:focus {
     outline: none;
 }
 
+.quadrant-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+}
+
 .quadrant {
     font-size: 120%;
     border-radius: 0.15rem;
@@ -49,7 +55,6 @@ input:focus {
     text-align: center;
     line-height: 1em;
     background-color: #202020;
-    margin: 0.5px;
 }
 
 .quadrant:hover {
@@ -142,11 +147,19 @@ input[type=text] {
 }
 
 .region-content {
+    display: grid;
+    padding: 0.5em;
+    row-gap: 0.5em;
+    grid-template-columns: [option] 1fr [value] auto;
     border-bottom-left-radius: 0.1em;
     border-bottom-right-radius: 0.1em;
     background-color: #383838;
     margin-bottom: 0.5em;
     overflow-y: hidden;
+}
+
+.justify-end {
+    justify-self: end;
 }
 
 .region-header {
@@ -160,11 +173,6 @@ input[type=text] {
     padding: 0.5em;
 }
 
-.right {
-    float: right;
-    margin-left: auto;
-}
-
 .vertical-center {
     margin-top: auto;
     margin-bottom: auto;
@@ -172,10 +180,6 @@ input[type=text] {
 
 .flex-container {
     display: flex;
-}
-
-.region-option {
-    padding: .5em;
 }
 
 .add-button {
