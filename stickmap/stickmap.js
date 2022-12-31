@@ -756,9 +756,13 @@ function isVisibleCoordinate(x, y)
 
 function clampCoordinates(x, y)
 {
-    let magnitude = Math.sqrt(x*x + y*y);
-    let scale = Math.min(CLAMP_RADIUS / magnitude, 1.0);
-    return [Math.trunc(x * scale), Math.trunc(y * scale)]
+    const clamp = (x, y, radius) => {
+        const magnitude = Math.sqrt(x*x + y*y);
+        const scale = Math.min(radius / magnitude, 1.0);
+        return [Math.trunc(x * scale), Math.trunc(y * scale)]
+    };
+    const gateRadius = getVisibleRadius(x, y);
+    return clamp(...clamp(x, y, gateRadius), CLAMP_RADIUS);
 }
 
 function isRimCoordinate(x, y)
