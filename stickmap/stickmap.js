@@ -536,36 +536,6 @@ function parseColorHex(string)
     return [24, 16, 8, 0].map(shift => (value >> shift) & 0xFF);
 }
 
-function filterColorHex(elem)
-{
-    let selectionStart = elem.selectionStart;
-    let selectionEnd = elem.selectionEnd;
-
-    // Ensure pound sign
-    if (elem.value[0] != '#')
-        elem.value = "#" + elem.value;
-
-    if (elem.value.length > 9) {
-        // Limit length
-        elem.value = removeCharAt(elem.value, selectionStart).slice(0, 9);
-    } else if (elem.value.length < 9) {
-        // Ensure 4 octets
-        elem.value = elem.value.padEnd(9, "0");
-    }
-
-    let components = parseColorHex(elem.value);
-
-    if (components !== null)
-        $(elem).removeClass("invalid-input");
-    else
-        $(elem).addClass("invalid-input");
-
-    elem.selectionStart = selectionStart;
-    elem.selectionEnd = selectionEnd;
-
-    return components;
-}
-
 function parseReplacementString(match, replacement)
 {
     return replacement.replaceAll(
@@ -637,23 +607,69 @@ function filterElemValue(elem, ...filters) {
     elem.selectionEnd = selectionEnd;
 }
 
+function filterColorHex(elem)
+{
+    let selectionStart = elem.selectionStart;
+    let selectionEnd = elem.selectionEnd;
+
+    // Ensure pound sign
+    if (elem.value[0] != '#')
+        elem.value = "#" + elem.value;
+
+    if (elem.value.length > 9) {
+        // Limit length
+        elem.value = removeCharAt(elem.value, selectionStart).slice(0, 9);
+    } else if (elem.value.length < 9) {
+        // Ensure 4 octets
+        elem.value = elem.value.padEnd(9, "0");
+    }
+
+    let components = parseColorHex(elem.value);
+
+    if (components !== null)
+        $(elem).removeClass("invalid-input");
+    else
+        $(elem).addClass("invalid-input");
+
+    elem.selectionStart = selectionStart;
+    elem.selectionEnd = selectionEnd;
+
+    return components;
+}
+
 function filterCoord(elem)
 {
-    filterElemValue(elem, [/[^\d.]/g,                       ""],
+    filterElemValue(elem, // Remove invalid characters
+                          [/[^\d.]/g,                       ""],
+                          // Automatically type digits after decimal
                           [/(?<=^\d)(\d)(?<caret>)\./,      ".$1"],
+                          // Type over ones digit
                           [/(?<=^\d)(?<caret>)\d(?=\.)/,    ""],
+                          // Automatically prepend decimal
                           [/^(\d{0,4}$)/,                   "0.$1"],
+                          // Automatically insert decimal
                           [/(?<=^\d+)(?=\d{4}$)/,           "."],
+                          // Remove duplicate decimal points
                           [/(?<=\.)\./g,                    ""],
+                          // Input decimal value when decimal point is typed at start
                           [/^\.\d\./g,                      "0."],
+                          // Prepend leading 0
                           [/^(?=\.)/g,                      "0"],
+                          // Remove extra leading digits when decimal point is inserted
                           [/.+(?=\d\.)/g,                   ""],
+                          // Overwrite next character when exceeding 6 characters
                           [/(?<caret>).(?=.*$(?<=.{7}))/g,  ""],
+                          // Insert 0 when backspacing
                           [/(?<caret>)(?=\d*$(?<!\d{4}))/g, "0"],
+                          // Ensure 4 decimal places
                           [/$(?<!\d{4})/,                   "0000"],
+                          // Cap ones digit to 1
                           [/^[2-9]/,                        "1"],
+                          // Zero out fractional digits when setting ones digit to 1
                           [/(?<=^1(?<caret>).*)[1-9]/g,     "0"],
+                          // Zero out ones digit when setting fractional digits
                           [/^1(?!\.0+$)/,                   "0"],
+                          // Truncate to 6 characters
                           [/(?<=.{6,})./g,                  ""]);
 
     return Math.round(parseFloat(elem.value) * CLAMP_RADIUS);
