@@ -85,19 +85,19 @@ input:focus {
     box-shadow: 0 0 0 2px red;
 }
 
-.color-square-left, .color-square-right {
+#color-square-left, #color-square-right {
     width: 0.75em;
     height: 1.5em;
     border-radius: 0.15rem;
     background-color: white;
 }
 
-.color-square-left {
+#color-square-left {
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
 }
 
-.color-square-right {
+#color-square-right {
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
 }
@@ -323,7 +323,7 @@ body.vertical #user-input {
     text-overflow: clip;
 }
 
-#color #picker {
+#color-picker {
     position: absolute;
     width: 1.5em;
     height: 1.5em;

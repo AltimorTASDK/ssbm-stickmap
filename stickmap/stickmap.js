@@ -143,8 +143,8 @@ class Region
 
     updateColorSquare()
     {
-        let colorSquareLeft = $(this.element).find(".color-square-left");
-        let colorSquareRight = $(this.element).find(".color-square-right");
+        let colorSquareLeft = $(this.element).find("#color-square-left");
+        let colorSquareRight = $(this.element).find("#color-square-right");
         colorSquareLeft.css("background-color", this.getFillStyleNoAlpha());
         colorSquareRight.css("background-color", this.getFillStyle());
     }
@@ -155,7 +155,7 @@ class Region
         for (let i = 0; i < 3; i++)
             picker += this.color[i].toString(16).padStart(2, "0");
 
-        $(this.element).find("#picker").val(picker);
+        $(this.element).find("#color-picker").val(picker);
     }
 
     getName()
@@ -439,10 +439,10 @@ class Region
         });
 
         // Color input
-        this.element.find("#picker").change(function() {
+        this.element.find("#color-picker").change(function() {
             let color = this.value;
             for (let i = 0; i < 3; i++) {
-                let elem = region.element.find(`#color #${i}`);
+                let elem = region.element.find(`#color-${i}`);
                 region.color[i] = parseInt(color.slice(1 + i * 2, 3 + i * 2), 16);
                 elem.val(region.color[i]);
             }
@@ -452,7 +452,7 @@ class Region
         });
 
         for (let i = 0; i < 4; i++) {
-            this.element.find(`#color #${i}`).on("input", function() {
+            this.element.find(`#color-${i}`).on("input", function() {
                 let selectionStart = this.selectionStart;
                 let selectionEnd = this.selectionEnd;
 
@@ -497,44 +497,44 @@ class Region
         });
 
         // Coordinate input
-        this.element.find("#x #min").on("input", function() {
+        this.element.find("#x-min").on("input", function() {
             updateFromInput('minX', filterCoord(this));
         });
 
-        this.element.find("#x #max").on("input", function() {
+        this.element.find("#x-max").on("input", function() {
             updateFromInput('maxX', filterCoord(this));
         });
 
-        this.element.find("#y #min").on("input", function() {
+        this.element.find("#y-min").on("input", function() {
             updateFromInput('minY', filterCoord(this));
         });
 
-        this.element.find("#y #max").on("input", function() {
-            updateFromInput('max', filterCoord(this));
+        this.element.find("#y-max").on("input", function() {
+            updateFromInput('maxY', filterCoord(this));
         });
 
-        this.element.find("#x #min").change(function() { roundCoord(this); });
-        this.element.find("#x #max").change(function() { roundCoord(this); });
-        this.element.find("#y #min").change(function() { roundCoord(this); });
-        this.element.find("#y #max").change(function() { roundCoord(this); });
-        this.element.find("#magnitude #min").change(function() { roundCoord(this); });
-        this.element.find("#magnitude #max").change(function() { roundCoord(this); });
+        this.element.find("#x-min").change(function() { roundCoord(this); });
+        this.element.find("#x-max").change(function() { roundCoord(this); });
+        this.element.find("#y-min").change(function() { roundCoord(this); });
+        this.element.find("#y-max").change(function() { roundCoord(this); });
+        this.element.find("#magnitude-min").change(function() { roundCoord(this); });
+        this.element.find("#magnitude-max").change(function() { roundCoord(this); });
 
         // Angle input
-        this.element.find("#angle #min").on("input", function() {
+        this.element.find("#angle-min").on("input", function() {
             updateFromInput('angleMin', filterAngle(this));
         });
 
-        this.element.find("#angle #max").on("input", function() {
+        this.element.find("#angle-max").on("input", function() {
             updateFromInput('angleMax', filterAngle(this));
         });
 
         // Magnitude input
-        this.element.find("#magnitude #min").on("input", function() {
+        this.element.find("#magnitude-min").on("input", function() {
             updateFromInput('magnitudeMin', filterCoord(this));
         });
 
-        this.element.find("#magnitude #max").on("input", function() {
+        this.element.find("#magnitude-max").on("input", function() {
             updateFromInput('magnitudeMax', filterCoord(this));
         });
 
