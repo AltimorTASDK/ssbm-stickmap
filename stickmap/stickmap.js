@@ -43,164 +43,35 @@ let drawY = 0;
 
 class Region
 {
-    matchesQuadrants(x, y)
-    {
-        let quadrants = this.quadrants;
+    element = template.clone();
+    color = [255, 255, 255, 255];
+    quadrants = [false, false, false, false];
+    displayMode = DisplayMode.Normal;
+    minX = 0;
+    minY = 0;
+    maxX = CLAMP_RADIUS;
+    maxY = CLAMP_RADIUS;
+    angleMin = 0;
+    angleMax = 90;
+    magnitudeMin = 0;
+    magnitudeMax = CLAMP_RADIUS;
 
-        if (!quadrants[0] && !quadrants[1] && !quadrants[2] && !quadrants[3])
-            return false;
+    clicked = false;
+    dragging = false;
+    dragStart = 0;
+    dragOffset = 0;
 
-        if (x > 0 && !quadrants[0] && !quadrants[3])
-            return false;
+    scrolling = false;
+    scrollDistance = 0.0;
 
-        if (x < 0 && !quadrants[1] && !quadrants[2])
-            return false;
-
-        if (y > 0 && !quadrants[0] && !quadrants[1])
-            return false;
-
-        if (y < 0 && !quadrants[2] && !quadrants[3])
-            return false;
-
-        if (x > 0 && y > 0 && !quadrants[0])
-            return false;
-
-        if (x < 0 && y > 0 && !quadrants[1])
-            return false;
-
-        if (x < 0 && y < 0 && !quadrants[2])
-            return false;
-
-        if (x > 0 && y < 0 && !quadrants[3])
-            return false;
-
-        return true;
-    }
-
-    containsCoordinate(x, y)
-    {
-        if (!isValidCoordinate(x, y))
-            return false;
-
-        // Check quadrant
-        if (!this.matchesQuadrants(x, y))
-            return false;
-
-        // Check bounds
-        let absX = Math.abs(x);
-        let absY = Math.abs(y);
-
-        if (absX < this.minX || absX > this.maxX)
-            return false;
-
-        if (absY < this.minY || absY > this.maxY)
-            return false;
-
-        // Check angle
-        let roundedX = absX > DEADZONE ? absX : 0;
-        let roundedY = absY > DEADZONE ? absY : 0;
-
-        let angle = Math.atan(roundedY / roundedX) * 180 / Math.PI;
-        if (angle < this.angleMin || angle > this.angleMax)
-            return false;
-
-        let magnitude = Math.sqrt(roundedX**2 + roundedY**2);
-        if (magnitude < this.magnitudeMin || magnitude > this.magnitudeMax)
-            return false;
-
-        return true;
-    }
-
-    matchesCoordinate(x, y)
-    {
-        if (this.displayMode == DisplayMode.RimOnly && !isRimCoordinate(x, y))
-            return false;
-
-        if (this.displayMode == DisplayMode.Outline &&
-                this.containsCoordinate(x + 1, y    ) &&
-                this.containsCoordinate(x + 1, y + 1) &&
-                this.containsCoordinate(x,     y + 1) &&
-                this.containsCoordinate(x - 1, y + 1) &&
-                this.containsCoordinate(x - 1, y    ) &&
-                this.containsCoordinate(x - 1, y - 1) &&
-                this.containsCoordinate(x,     y - 1) &&
-                this.containsCoordinate(x + 1, y - 1))
-            return false;
-
-        return this.containsCoordinate(x, y);
-    }
-
-    getFillStyle()
-    {
-        let alpha = this.color[3] / 255;
-        return "rgba(" + this.color.slice(0, 3).join(",") + "," + alpha + ")";
-    }
-
-    getFillStyleNoAlpha()
-    {
-        return "rgb(" + this.color.slice(0, 3).join(",") + ")";
-    }
-
-    updateColorSquare()
-    {
-        let colorSquareLeft = $(this.element).find("#color-square-left");
-        let colorSquareRight = $(this.element).find("#color-square-right");
-        colorSquareLeft.css("background-color", this.getFillStyleNoAlpha());
-        colorSquareRight.css("background-color", this.getFillStyle());
-    }
-
-    updateColorPicker()
-    {
-        const hex = "#" + this.color.slice(0, 3).map(x => x.toString(16).padStart(2, "0")).join("");
-        $(this.element).find("#color-picker").val(hex);
-    }
-
-    updateColorHex()
-    {
-        const hex = this.color.map(x => x.toString(16).padStart(2, "0")).join("");
-        $(this.element).find("#color-hex").val(hex);
-    }
-
-    getName()
-    {
-        return this.element.find("#region-name").val();
-    }
+    deleting = false;
 
     constructor(name)
     {
-        this.element = template.clone();
-        this.color = [255, 255, 255, 255]
-        this.quadrants = [false, false, false, false]
-        this.displayMode = DisplayMode.Normal;
-        this.minX = this.minY = 0;
-        this.maxX = this.maxY = CLAMP_RADIUS;
-        this.angleMin = 0.0;
-        this.angleMax = 90.0;
-        this.magnitudeMin = 0;
-        this.magnitudeMax = CLAMP_RADIUS;
-
-        this.clicked = false;
-        this.dragging = false;
-        this.dragStart = 0;
-        this.dragOffset = 0;
-
-        this.scrolling = false;
-        this.scrollDistance = 0.0;
-
-        this.deleting = false;
-
         // Set name
         this.element.find("#region-name").val(name);
 
         let region = this;
-
-        function updateFromInput(property, value)
-        {
-            if (value !== region[property]) {
-                region[property] = value;
-                drawStickMap();
-            }
-        }
 
         function updateRegionOrder(mouseY)
         {
@@ -444,15 +315,15 @@ class Region
         // Color input
         this.element.find("#color-picker").change(function() {
             region.color = [...parseColorHex(this.value), region.color[3]];
-            region.updateColorSquare();
-            region.updateColorHex();
+            region.#updateColorSquare();
+            region.#updateColorHex();
             drawStickMap();
         });
 
         this.element.find(`#color-hex`).on("input", function() {
             region.color = filterColorHex(this);
-            region.updateColorSquare();
-            region.updateColorPicker();
+            region.#updateColorSquare();
+            region.#updateColorPicker();
             drawStickMap();
         });
 
@@ -466,24 +337,24 @@ class Region
 
         // Display mode
         this.element.find("#display-mode").change(function() {
-            updateFromInput('displayMode', this.value);
+            region.#updateProperty('displayMode', this.value);
         });
 
         // Coordinate input
         this.element.find("#x-min").on("input", function() {
-            updateFromInput('minX', filterCoord(this));
+            region.#updateProperty('minX', filterCoord(this));
         });
 
         this.element.find("#x-max").on("input", function() {
-            updateFromInput('maxX', filterCoord(this));
+            region.#updateProperty('maxX', filterCoord(this));
         });
 
         this.element.find("#y-min").on("input", function() {
-            updateFromInput('minY', filterCoord(this));
+            region.#updateProperty('minY', filterCoord(this));
         });
 
         this.element.find("#y-max").on("input", function() {
-            updateFromInput('maxY', filterCoord(this));
+            region.#updateProperty('maxY', filterCoord(this));
         });
 
         this.element.find("#x-min").change(function() { roundCoord(this); });
@@ -495,23 +366,149 @@ class Region
 
         // Angle input
         this.element.find("#angle-min").on("input", function() {
-            updateFromInput('angleMin', filterAngle(this));
+            region.#updateProperty('angleMin', filterAngle(this));
         });
 
         this.element.find("#angle-max").on("input", function() {
-            updateFromInput('angleMax', filterAngle(this));
+            region.#updateProperty('angleMax', filterAngle(this));
         });
 
         // Magnitude input
         this.element.find("#magnitude-min").on("input", function() {
-            updateFromInput('magnitudeMin', filterCoord(this));
+            region.#updateProperty('magnitudeMin', filterCoord(this));
         });
 
         this.element.find("#magnitude-max").on("input", function() {
-            updateFromInput('magnitudeMax', filterCoord(this));
+            region.#updateProperty('magnitudeMax', filterCoord(this));
         });
 
         this.element.prependTo("#region-list");
+    }
+
+    get name()
+    {
+        return this.element.find("#region-name").val();
+    }
+
+    matchesCoordinate(x, y)
+    {
+        if (this.displayMode == DisplayMode.RimOnly && !isRimCoordinate(x, y))
+            return false;
+
+        if (this.displayMode == DisplayMode.Outline &&
+                this.#containsCoordinate(x + 1, y    ) &&
+                this.#containsCoordinate(x + 1, y + 1) &&
+                this.#containsCoordinate(x,     y + 1) &&
+                this.#containsCoordinate(x - 1, y + 1) &&
+                this.#containsCoordinate(x - 1, y    ) &&
+                this.#containsCoordinate(x - 1, y - 1) &&
+                this.#containsCoordinate(x,     y - 1) &&
+                this.#containsCoordinate(x + 1, y - 1))
+            return false;
+
+        return this.#containsCoordinate(x, y);
+    }
+
+
+    #matchesQuadrants(x, y)
+    {
+        let quadrants = this.quadrants;
+
+        if (!quadrants[0] && !quadrants[1] && !quadrants[2] && !quadrants[3])
+            return false;
+
+        if (x > 0 && !quadrants[0] && !quadrants[3])
+            return false;
+
+        if (x < 0 && !quadrants[1] && !quadrants[2])
+            return false;
+
+        if (y > 0 && !quadrants[0] && !quadrants[1])
+            return false;
+
+        if (y < 0 && !quadrants[2] && !quadrants[3])
+            return false;
+
+        if (x > 0 && y > 0 && !quadrants[0])
+            return false;
+
+        if (x < 0 && y > 0 && !quadrants[1])
+            return false;
+
+        if (x < 0 && y < 0 && !quadrants[2])
+            return false;
+
+        if (x > 0 && y < 0 && !quadrants[3])
+            return false;
+
+        return true;
+    }
+
+    #containsCoordinate(x, y)
+    {
+        if (!isValidCoordinate(x, y))
+            return false;
+
+        // Check quadrant
+        if (!this.#matchesQuadrants(x, y))
+            return false;
+
+        // Check bounds
+        let absX = Math.abs(x);
+        let absY = Math.abs(y);
+
+        if (absX < this.minX || absX > this.maxX)
+            return false;
+
+        if (absY < this.minY || absY > this.maxY)
+            return false;
+
+        // Check angle
+        let roundedX = absX > DEADZONE ? absX : 0;
+        let roundedY = absY > DEADZONE ? absY : 0;
+
+        let angle = Math.atan(roundedY / roundedX) * 180 / Math.PI;
+        if (angle < this.angleMin || angle > this.angleMax)
+            return false;
+
+        let magnitude = Math.sqrt(roundedX**2 + roundedY**2);
+        if (magnitude < this.magnitudeMin || magnitude > this.magnitudeMax)
+            return false;
+
+        return true;
+    }
+
+    #updateProperty(property, value)
+    {
+        if (value !== region[property]) {
+            this[property] = value;
+            drawStickMap();
+        }
+    }
+
+    get colorHex()
+    {
+        return this.color.map(x => x.toString(16).padStart(2, "0")).join("");
+    }
+
+    #updateColorSquare()
+    {
+        const rgbStyle  = "#" + this.colorHex.slice(0, 6);
+        const rgbaStyle = "#" + this.colorHex;
+        $(this.element).find("#color-square-left").css("background-color", rgbStyle);
+        $(this.element).find("#color-square-right").css("background-color", rgbaStyle);
+    }
+
+    #updateColorPicker()
+    {
+        const hex = "#" + this.color.slice(0, 3).map(x => x.toString(16).padStart(2, "0")).join("");
+        $(this.element).find("#color-picker").val(hex);
+    }
+
+    #updateColorHex()
+    {
+        const hex = this.color.map(x => x.toString(16).padStart(2, "0")).join("");
+        $(this.element).find("#color-hex").val(hex);
     }
 }
 
@@ -541,7 +538,7 @@ function parseReplacementString(match, replacement)
                 return match[groupNum];
             if (groupDigit && groupDigit in match)
                 return match[groupDigit];
-            if (groupName !== void 0 && match.groups)
+            if (groupName !== undefined && match.groups)
                 return match.groups[groupName] ?? "";
 
             switch (symbol) {
@@ -670,7 +667,7 @@ function splicedString(string, start, deleteCount, ...toInsert)
 {
     let result = string.slice(0, start) + toInsert.join("");
 
-    if (deleteCount !== void 0)
+    if (deleteCount !== undefined)
         return result + string.slice(start + deleteCount);
     else
         return result;
