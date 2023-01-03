@@ -163,7 +163,7 @@ input[type=text] {
     flex: 1;
 }
 
-.justify-end {
+.region-option-group > :nth-child(2n) {
     justify-self: end;
 }
 
