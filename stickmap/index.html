@@ -14,10 +14,10 @@
                     <div class="region-header-content">
                         <input id="region-name" type="text" spellcheck="false"/>
                         <div class="move-button-container">
-                            <div class="move-button move-button-up">&#9650;</div>
-                            <div class="move-button move-button-down">&#9660;</div>
+                            <div class="move-button move-button-up"><span>▲</span></div>
+                            <div class="move-button move-button-down"><span>▼</span></div>
                         </div>
-                        <div class="button delete-button">&times;</div>
+                        <div class="button delete-button"><span>&times;</span></div>
                     </div>
                 </div>
                 <div class="region-content">
@@ -80,14 +80,21 @@
         </div>
         <div id="page-container" class="flex-container">
             <div id="user-input">
-                <div id="add-region" class="flex-container" onclick="addRegion();">
-                    <div class="button add-button">+</div>
-                    <div class="clickable horizontal-margin">Add New Region</div>
+                <div id="top-bar">
+                    <div class="labeled-button" onclick="addRegion();">
+                        <div class="button add-button"><span>+</span></div>
+                        <label>Add New Region</label>
+                    </div>
+                    <div class="labeled-button" onclick="toggleJson();">
+                        <div class="button json-button"><span>{ }</span></div>
+                        <label>Toggle JSON</label>
+                    </div>
                 </div>
                 <div id="region-list-container">
                     <div id="drag-position-bar"></div>
                     <div id="region-list"></div>
                 </div>
+                <textarea id="json-input" spellcheck="false"></textarea>
             </div>
             <div id="canvas-container">
                 <div id="coordinate-square"><div id="coordinate-square-inner"></div></div>

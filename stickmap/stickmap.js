@@ -33,6 +33,8 @@ const DisplayMode = {
 
 let loading = true;
 
+let showingJson = false;
+
 let regions = [];
 let template = null;
 let canvas = null;
@@ -75,7 +77,7 @@ class Region
 
     constructor(properties={})
     {
-        for (const key in Object.keys(properties).filter(key => key in this))
+        for (const key of Object.keys(properties).filter(key => key in this))
             this[key] = properties[key];
 
         this.#updateUI();
@@ -965,6 +967,26 @@ function addRegion()
 {
     regions.push(new Region());
     repositionRegions();
+    updateJson();
+}
+
+function updateJson()
+{
+    $("#json-input").val(JSON.stringify(regions, null, 4));
+}
+
+function toggleJson()
+{
+    showingJson = !showingJson;
+
+    if (showingJson) {
+        $("#region-list-container").css("display", "none");
+        $("#json-input").css("display", "initial");
+        updateJson();
+    } else {
+        $("#region-list-container").css("display", "initial");
+        $("#json-input").css("display", "none");
+    }
 }
 
 function repositionRegions(exclude=null, interpolate=true)
@@ -1085,6 +1107,23 @@ $(function()
         updateVerticalMode();
         repositionRegions(null, false);
         updateCoordinateDisplay();
+    });
+
+    $("#json-input").on("input", function() {
+        let newRegions;
+
+        try {
+            newRegions = JSON.parse(this.value);
+        } catch {
+            $(this).addClass("invalid-input");
+            return;
+        }
+
+        $(this).removeClass("invalid-input");
+        $("#region-list").empty();
+        regions = newRegions.map(json => new Region(json));
+        repositionRegions(null, false);
+        drawStickMap();
     });
 
     updateVerticalMode();

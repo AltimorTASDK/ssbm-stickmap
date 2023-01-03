@@ -41,7 +41,7 @@ select {
     color: inherit;
 }
 
-input {
+input, textarea {
     border-radius: var(--border-radius);
     padding: 0.1em 0.2em;
     background-color: var(--bg-color);
@@ -49,11 +49,29 @@ input {
     font-size: inherit;
     border: none;
     color: inherit;
+}
+
+input {
     text-align: right;
 }
 
-input:focus {
+textarea {
+    resize: none;
+}
+
+input:focus, textarea:focus {
     outline: none;
+}
+
+#json-input {
+    display: none;
+    width: 100%;
+    height: 100%;
+    background-color: #101010;
+}
+
+.invalid-input {
+    box-shadow: 0 0 0 2px red;
 }
 
 .quadrant-grid {
@@ -212,28 +230,21 @@ input[type=text] {
 }
 
 .button {
+    display: flex;
     user-select: none;
     border-radius: var(--border-radius);
     font-size: 200%;
-    width: 0.75em;
-    height: 0.75em;
-    line-height: 0.5em;
+    width: 1.5rem;
+    height: 1.5rem;
+    line-height: 1rem;
     color: white;
     font-weight: bolder;
-    text-align: center;
-    vertical-align: middle;
+    cursor: pointer;
 }
 
-.add-button {
-    background-color: #20c020;
-}
-
-div:hover > .add-button {
-    background-color: #50e050;
-}
-
-div:active > .add-button {
-    background-color: #10a010;
+.button span {
+    margin: auto;
+    height: 100%;
 }
 
 .delete-button {
@@ -363,6 +374,9 @@ body.vertical #page-container {
 }
 
 #user-input {
+    display: grid;
+    grid-template-rows: auto 1fr;
+    row-gap: 0.75em;
     position: relative;
     background-color: var(--bg-color);
     padding: 1em;
@@ -432,16 +446,50 @@ body.vertical #user-input::-webkit-scrollbar-button {
     position: relative;
 }
 
-#add-region {
-    margin-bottom: 0.75em;
-    border-radius: 0.1em;
-    line-height: 1.5em;
-    cursor: pointer;
-    width: fit-content;
+#top-bar {
+    display: flex;
+    gap: 1.5em;
 }
 
-#add-region:hover .clickable {
+.labeled-button {
+    display: flex;
+    gap: 0.5em;
+    width: fit-content;
+    cursor: pointer;
+}
+
+.labeled-button * {
+    cursor: inherit;
+}
+
+.labeled-button:hover label {
     text-decoration: underline;
+}
+
+.add-button {
+    background-color: #20c020;
+}
+
+div:hover > .add-button {
+    background-color: #50e050;
+}
+
+div:active > .add-button {
+    background-color: #10a010;
+}
+
+.json-button {
+    background-color: #2060f0;
+    font-size: 100%;
+    line-height: 1.25rem;
+}
+
+div:hover > .json-button {
+    background-color: #4080ff;
+}
+
+div:active > .json-button {
+    background-color: #1040c0;
 }
 
 #drag-position-bar {
