@@ -193,7 +193,7 @@ class Region
                 elem.css({height: elem.height()});
 
                 let regionContent = elem.find(".region-content");
-                region.contentHeight = regionContent.height();
+                region.#contentHeight = regionContent.height();
                 regionContent.animate({height: 0}, {queue: false, duration: 200});
 
                 moveDragPositionBar(regions.indexOf(region), false);
@@ -298,7 +298,7 @@ class Region
             bar.animate({opacity: 0.0});
 
             let regionContent = region.#element.find(".region-content");
-            regionContent.animate({height: region.contentHeight}, {
+            regionContent.animate({height: region.#contentHeight}, {
                 duration: 200,
                 queue: false,
                 complete: () => regionContent.css("height", "auto")
