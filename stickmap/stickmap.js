@@ -703,7 +703,7 @@ function filterCoord(elem)
         [/^(?=\.)/,                       "0"],    // Prepend leading 0
         [/.+(?=\d\.)/g,                   ""],     // Set new decimal point
         [/(?<caret>).(?=.*$(?<=\d{5}))/g, ""],     // Replace digit when over 4 decimal places
-        [/(?<caret>)(?=.*$(?<!\d{4}))/g,  "0"],    // Insert 0 when backspacing
+        [/(?<caret>)(?=\d*$(?<!\d{4}))/g,  "0"],   // Insert 0 when backspacing
         [/$(?<!\d{4})/,                   "0000"], // Ensure 4 decimal places
         [/^[2-9]/,                        "1"],    // Cap ones digit to 1
         [/(?<=^1(?<caret>).*)[1-9]/g,     "0"],    // Zero out fractional digits when inputting 1.0
