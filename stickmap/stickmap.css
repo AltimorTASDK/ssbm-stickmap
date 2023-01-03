@@ -68,7 +68,7 @@ input:focus {
     position: relative;
 }
 
-.quadrant:hover {
+.quadrant:hover, .quadrant:focus {
     color: white;
     background-color: #505050;
 }
