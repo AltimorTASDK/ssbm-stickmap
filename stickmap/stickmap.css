@@ -1,10 +1,17 @@
 html {
     font-size: 1.25em;
+    --text-color:         #f0f0f0;
+    --focus-color:        #505050;
+    --accent-color:       #59bde7;
+    --accent-focus-color: #9afbff;
+    --bg-color:           #202020;
+    --fg-color:           #383838;
+    --bright-color:       #00ebff;
 }
 
 body {
     background: black;
-    color: #f0f0f0;
+    color: var(--text-color);
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
     margin: 0;
     overflow: hidden;
@@ -24,7 +31,7 @@ label {
 select {
     border-radius: 0.15rem;
     padding: 0.1em;
-    background-color: #505050;
+    background-color: var(--focus-color);
     font-family: inherit;
     font-size: inherit;
     border: none;
@@ -34,7 +41,7 @@ select {
 input {
     border-radius: 0.15rem;
     padding: 0.1em 0.2em;
-    background-color: #202020;
+    background-color: var(--bg-color);
     font-family: 'Monaco', 'Consolas', 'Courier New', monospace;
     font-size: inherit;
     border: none;
@@ -68,26 +75,22 @@ input:focus {
     border-radius: 0.15rem;
     width: 1.2em;
     height: 1.2em;
-    background-color: #202020;
+    background-color: var(--bg-color);
     position: relative;
 }
 
 .quadrant:hover, .quadrant:focus {
     color: white;
-    background-color: #505050;
+    background-color: var(--focus-color);
 }
 
 .quadrant:checked {
-    background-color: #59bde7;
-    color: #202020;
+    background-color: var(--accent-color);
+    color: var(--bg-color);
 }
 
 .quadrant:hover:checked {
-    background-color: #9afbff;
-}
-
-.invalid-input {
-    box-shadow: 0 0 0 2px red;
+    background-color: var(--accent-focus-color);
 }
 
 #color-square-left, #color-square-right {
@@ -140,7 +143,7 @@ input[type=text] {
 }
 
 .region-content {
-    background-color: #383838;
+    background-color: var(--fg-color);
     margin-bottom: 0.5em;
     overflow-y: hidden;
     border-bottom-left-radius: 0.1em;
@@ -172,7 +175,7 @@ input[type=text] {
     grid-template-columns: auto 1fr;
     border-top-left-radius: 0.1em;
     border-top-right-radius: 0.1em;
-    background-color: #59bde7;
+    background-color: var(--accent-color);
 }
 
 .region-header-content {
@@ -340,14 +343,14 @@ body.vertical #page-container {
 
 #user-input {
     position: relative;
-    background-color: #202020;
+    background-color: var(--bg-color);
     padding: 1em;
     flex-grow: 1;
     overflow-y: scroll;
 }
 
 body.vertical #user-input {
-    border-top: 1px solid #59bde7;
+    border-top: 1px solid var(--accent-color);
 }
 
 #region-name {
@@ -355,7 +358,7 @@ body.vertical #user-input {
     flex-grow: 1;
     margin-right: 0.5em;
     background-color: transparent;
-    color: #202020;
+    color: var(--bg-color);
     text-overflow: clip;
 }
 
@@ -367,13 +370,13 @@ body.vertical #user-input {
 }
 
 #user-input::-webkit-scrollbar {
-    background-color: #202020;
-    border: 1px solid #59bde7;
+    background-color: var(--bg-color);
+    border: 1px solid var(--accent-color);
 }
 
 #user-input::-webkit-scrollbar-button {
-    background-color: #383838;
-    border: 1px solid #59bde7;
+    background-color: var(--fg-color);
+    border: 1px solid var(--accent-color);
 }
 
 body.vertical #user-input::-webkit-scrollbar-button {
@@ -381,19 +384,19 @@ body.vertical #user-input::-webkit-scrollbar-button {
 }
 
 #user-input::-webkit-scrollbar-button:hover {
-    background-color: #505050;
+    background-color: var(--focus-color);
 }
 
 #user-input::-webkit-scrollbar-button:active {
-    background-color: #202020;
+    background-color: var(--bg-color);
 }
 
 #user-input::-webkit-scrollbar-thumb {
-    background-color: #59bde7;
+    background-color: var(--accent-color);
 }
 
 #user-input::-webkit-scrollbar-thumb:hover {
-    background-color: #9afbff;
+    background-color: var(--accent-focus-color);
 }
 
 #user-input::-webkit-scrollbar-thumb:active {
@@ -432,7 +435,7 @@ body.vertical #user-input::-webkit-scrollbar-button {
     position: absolute;
     left: 1px;
     right: 1px;
-    box-shadow: 0 0 0 1px #9afbff;
+    box-shadow: 0 0 0 1px var(--accent-focus-color);
     z-index: 150;
     opacity: 0;
 }
@@ -443,7 +446,7 @@ body.vertical #user-input::-webkit-scrollbar-button {
     position: absolute;
     left: 0;
     right: 0;
-    box-shadow: 0 0 0.25rem 0.25rem #9afbff;
+    box-shadow: 0 0 0.25rem 0.25rem var(--accent-focus-color);
     opacity: 0.5;
 }
 
@@ -486,11 +489,11 @@ body.vertical #canvas-centered {
 }
 
 #coordinate-square {
-    box-shadow: 0 0 2px 2px #9afbff;
+    box-shadow: 0 0 2px 2px var(--accent-focus-color);
 }
 
 #coordinate-square-inner {
-    box-shadow: inset 0 0 2px 0px #9afbff;
+    box-shadow: inset 0 0 2px 0px var(--accent-focus-color);
     width: 100%;
     height: 100%;
 }
@@ -519,7 +522,7 @@ body.vertical #canvas-centered {
 #loading-screen {
     display: table;
     background: black;
-    color: #00ebff;
+    color: var(--bright-color);
     font-size: 3.2rem;
     user-select: none;
 }
