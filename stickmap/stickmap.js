@@ -43,6 +43,8 @@ let drawY = 0;
 
 class Region
 {
+    name = `Region ${regions.length + 1}`;
+
     color = [255, 255, 255, 255];
     quadrants = [false, false, false, false];
     displayMode = DisplayMode.Normal;
@@ -67,16 +69,16 @@ class Region
 
     #deleting = false;
 
-    get name() { return this.#element.find("#region-name").val(); }
-
     get colorHex() { return this.color.map(x => x.toString(16).padStart(2, "0")).join(""); }
 
     get outerHeight() { return this.#element.outerHeight(); }
 
-    constructor(name)
+    constructor(properties={})
     {
-        // Set name
-        this.#element.find("#region-name").val(name);
+        for (const key in Object.keys(properties).filter(key => key in this))
+            this[key] = properties[key];
+
+        this.#updateUI();
 
         this.#element.prependTo("#region-list");
 
@@ -543,19 +545,23 @@ class Region
 
     #updateUI()
     {
+        const formatCoord = coord => (coord / CLAMP_RADIUS).toFixed(4);
+        const formatAngle = angle => angle.toFixed(2);
+
+        this.#element.find("#region-name").val(this.name);
         this.#updateColorSquare();
         this.#updateColorPicker();
         this.#updateColorHex();
         this.quadrants.forEach((v, i) => this.#element.find(`#quadrant${i + 1}`).val(v));
         this.#element.find("#display-mode").val(this.displayMode);
-        this.#element.find("#x-min").val(this.minX);
-        this.#element.find("#x-max").val(this.maxX);
-        this.#element.find("#y-min").val(this.minY);
-        this.#element.find("#y-max").val(this.maxY);
-        this.#element.find("#angle-min").val(this.angleMin);
-        this.#element.find("#angle-max").val(this.angleMax);
-        this.#element.find("#magnitude-min").val(this.magnitudeMin);
-        this.#element.find("#magnitude-max").val(this.magnitudeMax);
+        this.#element.find("#x-min").val(formatCoord(this.minX));
+        this.#element.find("#x-max").val(formatCoord(this.maxX));
+        this.#element.find("#y-min").val(formatCoord(this.minY));
+        this.#element.find("#y-max").val(formatCoord(this.maxY));
+        this.#element.find("#angle-min").val(formatAngle(this.angleMin));
+        this.#element.find("#angle-max").val(formatAngle(this.angleMax));
+        this.#element.find("#magnitude-min").val(formatCoord(this.magnitudeMin));
+        this.#element.find("#magnitude-max").val(formatCoord(this.magnitudeMax));
     }
 
     #updateColorSquare()
@@ -573,7 +579,7 @@ class Region
 
     #updateColorHex()
     {
-        this.#element.find("#color-hex").val("#" + this.colorHex);
+        this.#element.find("#color-hex").val(this.colorHex);
     }
 }
 
@@ -957,7 +963,7 @@ function drawFrame(timestamp)
 
 function addRegion()
 {
-    regions.push(new Region("Region " + (regions.length + 1)));
+    regions.push(new Region());
     repositionRegions();
 }
 
