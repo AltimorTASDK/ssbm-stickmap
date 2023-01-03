@@ -113,8 +113,15 @@ input:focus {
     border-bottom-left-radius: 0;
 }
 
+.hex-prefix {
+    margin-left: 0.25em;
+    margin-right: 0.1em;
+    margin-top: auto;
+    margin-bottom: auto;
+    line-height: 1em;
+}
+
 #color-hex {
-    margin-left: 0.1em;
     text-transform: uppercase;
 }
 
