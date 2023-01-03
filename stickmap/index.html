@@ -81,13 +81,17 @@
         <div id="page-container" class="flex-container">
             <div id="user-input">
                 <div id="top-bar">
-                    <div class="labeled-button" onclick="addRegion();">
+                    <div class="labeled-button" onclick="addRegion()">
                         <div class="button add-button"><span>+</span></div>
                         <label>Add New Region</label>
                     </div>
-                    <div class="labeled-button" onclick="toggleJson();">
-                        <div class="button json-button"><span>{ }</span></div>
+                    <div class="labeled-button" onclick="toggleJson()">
+                        <div class="button json-toggle"><span>{ }</span></div>
                         <label>Toggle JSON</label>
+                    </div>
+                    <div class="labeled-button" onclick="toggleGate()">
+                        <div class="button gate-toggle"><div><div></div></div></div>
+                        <label>Toggle Gate</label>
                     </div>
                 </div>
                 <div id="region-list-container">

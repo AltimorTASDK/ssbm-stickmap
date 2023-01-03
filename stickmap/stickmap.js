@@ -5,7 +5,7 @@ const DEADZONE = 22;
 // Minimum framerate to maintain while redrawing canvas
 const MINIMUM_FRAMERATE = 255;
 
-const DISPLAY_RADIUS = 103; // Unclamped range
+const GATE_RADIUS = 103; // Unclamped range
 const CLAMP_RADIUS = 80; // Clamped range
 
 // How much to darken clamped coordinates
@@ -13,8 +13,7 @@ const CLAMPED_COLOR_MULT = 1.0 / 3.0;
 
 const GRID_LINE_WIDTH = 1;
 const CANVAS_SCALE = 6;
-const CANVAS_SIZE = (DISPLAY_RADIUS * 2 + 1) * CANVAS_SCALE + GRID_LINE_WIDTH * 2;
-const MIN_CANVAS_SIZE = CANVAS_SIZE * 0.5;
+const MIN_CANVAS_SCALE = 0.5;
 
 // Minimum body scale for small windows
 const MIN_SCALE = 0.6;
@@ -35,9 +34,13 @@ let loading = true;
 
 let showingJson = false;
 
+let useGate = true;
+
 let regions = [];
 let template = null;
 let canvas = null;
+
+let canvasImageSize;
 
 // Saved between partial canvas draws
 let drawX = 0;
@@ -766,6 +769,11 @@ function isValidCoordinate(x, y)
     return x*x + y*y <= CLAMP_RADIUS * CLAMP_RADIUS;
 }
 
+function getDisplayRadius()
+{
+    return useGate ? GATE_RADIUS : CLAMP_RADIUS;
+}
+
 function getGateRadius(x, y)
 {
     // Hey, how's it going. I'm Jack, and today, I'm here to tell you about the word "octagon".
@@ -793,13 +801,16 @@ function getGateRadius(x, y)
     let angle = Math.atan2(Math.abs(y), Math.abs(x)) % (2 * Math.PI / sides);
 
     // Law of sines
-    return DISPLAY_RADIUS * Math.sin(halfInteriorAngle)
-                          / Math.sin(Math.PI - angle - halfInteriorAngle);
+    return GATE_RADIUS * Math.sin(halfInteriorAngle)
+                       / Math.sin(Math.PI - angle - halfInteriorAngle);
 }
 
 function isVisibleCoordinate(x, y)
 {
-    return x*x + y*y <= getGateRadius(x, y)**2;
+    if (useGate)
+        return x*x + y*y <= getGateRadius(x, y)**2;
+    else
+        return x*x + y*y <= CLAMP_RADIUS**2;
 }
 
 function clampCoordinates(x, y)
@@ -922,8 +933,8 @@ function drawCoordinate(x, y)
         fillStyle: fill,
         strokeStyle: stroke,
         fromCenter: false,
-        x: (x + DISPLAY_RADIUS) * CANVAS_SCALE + GRID_LINE_WIDTH * 1.5,
-        y: (DISPLAY_RADIUS - y) * CANVAS_SCALE + GRID_LINE_WIDTH * 1.5,
+        x: (x + getDisplayRadius()) * CANVAS_SCALE + GRID_LINE_WIDTH * 1.5,
+        y: (getDisplayRadius() - y) * CANVAS_SCALE + GRID_LINE_WIDTH * 1.5,
         width:  CANVAS_SCALE - GRID_LINE_WIDTH,
         height: CANVAS_SCALE - GRID_LINE_WIDTH,
         strokeWidth: GRID_LINE_WIDTH
@@ -932,15 +943,15 @@ function drawCoordinate(x, y)
 
 function drawStickMap()
 {
-    drawX = -DISPLAY_RADIUS;
-    drawY = -DISPLAY_RADIUS;
+    drawX = -getDisplayRadius();
+    drawY = -getDisplayRadius();
     requestAnimationFrame(drawFrame);
 }
 
 function drawFrame(timestamp)
 {
-    while (drawX <= DISPLAY_RADIUS) {
-        while (drawY <= DISPLAY_RADIUS) {
+    while (drawX <= getDisplayRadius()) {
+        while (drawY <= getDisplayRadius()) {
             drawCoordinate(drawX, drawY);
             drawY++;
 
@@ -952,7 +963,7 @@ function drawFrame(timestamp)
         }
 
         drawX++;
-        drawY = -DISPLAY_RADIUS;
+        drawY = -getDisplayRadius();
     }
 
     if (loading) {
@@ -989,6 +1000,27 @@ function toggleJson()
     }
 }
 
+function toggleGate()
+{
+    useGate = !useGate;
+    updateCanvasSize();
+    drawStickMap();
+}
+
+function updateCanvasSize()
+{
+    canvasImageSize = (getDisplayRadius() * 2 + 1) * CANVAS_SCALE + GRID_LINE_WIDTH * 2;
+
+    canvas.prop("width", canvasImageSize);
+    canvas.prop("height", canvasImageSize);
+
+    canvas.drawRect({
+        fillStyle: "#000000",
+        x: canvasImageSize / 2, y: canvasImageSize / 2,
+        width: canvasImageSize, height: canvasImageSize
+    });
+}
+
 function repositionRegions(exclude=null, interpolate=true)
 {
     let top = 0;
@@ -1007,15 +1039,7 @@ $(function()
 {
     template = $("#region-template").contents().filter(".region-container");
     canvas = $("canvas");
-
-    canvas.prop("width", CANVAS_SIZE);
-    canvas.prop("height", CANVAS_SIZE);
-
-    canvas.drawRect({
-        fillStyle: "#000000",
-        x: CANVAS_SIZE / 2, y: CANVAS_SIZE / 2,
-        width: CANVAS_SIZE, height: CANVAS_SIZE
-    });
+    updateCanvasSize();
 
     let mouseX, mouseY;
     let canvasContainer = $("#canvas-container");
@@ -1032,7 +1056,8 @@ $(function()
         let canvasSizeHorz = Math.min(windowHeight, windowWidth  - minRegionListWidth);
         let canvasSizeVert = Math.min(windowWidth,  windowHeight - minRegionListHeight);
         let canvasSize = Math.max(canvasSizeHorz, canvasSizeVert);
-        let minCanvasSize = Math.min(MIN_CANVAS_SIZE, Math.min(windowWidth, windowHeight));
+        let baseMinCanvasSize = canvasImageSize * MIN_CANVAS_SCALE;
+        let minCanvasSize = Math.min(baseMinCanvasSize, Math.min(windowWidth, windowHeight));
         let ratio = canvasSize / minCanvasSize;
 
         if (ratio >= 1.0) {
@@ -1053,7 +1078,7 @@ $(function()
         canvasContainer.css("min-height", canvasSize);
 
         // Update mouseover square size for canvas scale
-        let canvasScale = canvasSize / CANVAS_SIZE;
+        let canvasScale = canvasSize / canvasImageSize;
         let squareSize = Math.round((CANVAS_SCALE - GRID_LINE_WIDTH * 2) * canvasScale);
         coordinateSquare.css("width", squareSize);
         coordinateSquare.css("height", squareSize);
@@ -1071,10 +1096,10 @@ $(function()
 
     function updateCoordinateDisplay()
     {
-        let scale = canvas.innerHeight() / CANVAS_SIZE;
+        let scale = canvas.innerHeight() / canvasImageSize;
 
-        let unclampedX = Math.floor(mouseX / scale / CANVAS_SCALE - DISPLAY_RADIUS);
-        let unclampedY = Math.ceil(DISPLAY_RADIUS - mouseY / scale / CANVAS_SCALE);
+        let unclampedX = Math.floor(mouseX / scale / CANVAS_SCALE - getDisplayRadius());
+        let unclampedY = Math.ceil(getDisplayRadius() - mouseY / scale / CANVAS_SCALE);
         let [x, y] = clampCoordinates(unclampedX, unclampedY);
 
         coordinateText.text(formatCoordinate(x, y));
@@ -1082,8 +1107,8 @@ $(function()
         let [color] = getCoordinateStyle(x, y);
         coordinateSquare.css("background-color", color);
 
-        let pixelX = (x + DISPLAY_RADIUS) * CANVAS_SCALE + GRID_LINE_WIDTH * 2;
-        let pixelY = (DISPLAY_RADIUS - y) * CANVAS_SCALE + GRID_LINE_WIDTH * 2;
+        let pixelX = (x + getDisplayRadius()) * CANVAS_SCALE + GRID_LINE_WIDTH * 2;
+        let pixelY = (getDisplayRadius() - y) * CANVAS_SCALE + GRID_LINE_WIDTH * 2;
         let offsetX = Math.round(canvas.offset().left + pixelX * scale);
         let offsetY = Math.round(canvas.offset().top  + pixelY * scale);
         coordinateSquare.css("left", offsetX);

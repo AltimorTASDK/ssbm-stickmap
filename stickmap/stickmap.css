@@ -234,15 +234,15 @@ input[type=text] {
     user-select: none;
     border-radius: var(--border-radius);
     font-size: 200%;
-    width: 1.5rem;
-    height: 1.5rem;
-    line-height: 1rem;
+    width: 0.75em;
+    height: 0.75em;
+    line-height: 0.5em;
     color: white;
     font-weight: bolder;
     cursor: pointer;
 }
 
-.button span {
+.button > span {
     margin: auto;
     height: 100%;
 }
@@ -447,8 +447,9 @@ body.vertical #user-input::-webkit-scrollbar-button {
 }
 
 #top-bar {
-    display: flex;
-    gap: 1.5em;
+    display: grid;
+    gap: 0.75em;
+    grid-template-columns: 1fr auto auto;
 }
 
 .labeled-button {
@@ -456,6 +457,12 @@ body.vertical #user-input::-webkit-scrollbar-button {
     gap: 0.5em;
     width: fit-content;
     cursor: pointer;
+}
+
+.labeled-button label {
+    line-height: 1em;
+    margin-top: auto;
+    margin-bottom: auto;
 }
 
 .labeled-button * {
@@ -478,18 +485,40 @@ div:active > .add-button {
     background-color: #10a010;
 }
 
-.json-button {
+.json-toggle {
     background-color: #2060f0;
-    font-size: 100%;
-    line-height: 1.25rem;
 }
 
-div:hover > .json-button {
+.json-toggle > span {
+    font-size: 50%;
+    line-height: 1.25em;
+}
+
+div:hover > .json-toggle {
     background-color: #4080ff;
 }
 
-div:active > .json-button {
+div:active > .json-toggle {
     background-color: #1040c0;
+}
+
+.gate-toggle {
+    background-color: #6040C0;
+}
+
+.gate-toggle > div {
+    clip-path: polygon(0% 50%, 15% 85%, 50% 100%, 85% 85%, 100% 50%, 85% 15%, 50% 0%, 15% 15%);
+    width: 80%;
+    height: 80%;
+    margin: auto;
+    background-color: #808080;
+}
+
+.gate-toggle > div > div {
+    clip-path: circle(35%);
+    width: 100%;
+    height: 100%;
+    background-color: #e0e0e0;
 }
 
 #drag-position-bar {
