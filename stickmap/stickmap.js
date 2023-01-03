@@ -979,13 +979,14 @@ function drawFrame(timestamp)
 function addRegion()
 {
     regions.push(new Region());
-    repositionRegions();
     updateJson();
+    repositionRegions();
 }
 
 function updateJson()
 {
-    $("#json-input").val(JSON.stringify(regions, null, 4));
+    if (showingJson)
+        $("#json-input").val(JSON.stringify(regions, null, 4));
 }
 
 function toggleJson()
@@ -999,6 +1000,7 @@ function toggleJson()
     } else {
         $("#region-list-container").css("display", "initial");
         $("#json-input").css("display", "none");
+        repositionRegions(null, false);
     }
 }
 
