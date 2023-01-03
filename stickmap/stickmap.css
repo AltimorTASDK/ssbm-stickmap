@@ -151,7 +151,7 @@ input[type=text] {
     display: flex;
     padding: 0.5em;
     row-gap: 0.5em;
-    column-gap: 1em;
+    column-gap: 1.5em;
     flex-direction: row;
     flex-wrap: wrap;
 }
