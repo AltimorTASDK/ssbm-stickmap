@@ -43,7 +43,6 @@ let drawY = 0;
 
 class Region
 {
-    element = template.clone();
     color = [255, 255, 255, 255];
     quadrants = [false, false, false, false];
     displayMode = DisplayMode.Normal;
@@ -56,22 +55,77 @@ class Region
     magnitudeMin = 0;
     magnitudeMax = CLAMP_RADIUS;
 
-    clicked = false;
-    dragging = false;
-    dragStart = 0;
-    dragOffset = 0;
+    #element = template.clone();
 
-    scrolling = false;
-    scrollDistance = 0.0;
+    #clicked = false;
+    #dragging = false;
+    #dragStart = 0;
+    #dragOffset = 0;
 
-    deleting = false;
+    #scrolling = false;
+    #scrollDistance = 0.0;
+
+    #deleting = false;
+
+    get name() { return this.#element.find("#region-name").val(); }
+
+    get colorHex() { return this.color.map(x => x.toString(16).padStart(2, "0")).join(""); }
+
+    get outerHeight() { return this.#element.outerHeight(); }
 
     constructor(name)
     {
         // Set name
-        this.element.find("#region-name").val(name);
+        this.#element.find("#region-name").val(name);
+
+        this.#element.prependTo("#region-list");
 
         let region = this;
+
+        function moveDragPositionBar(index, interpolate=true)
+        {
+            let top = 0;
+
+            for (let i = regions.length - 1; i > index; i--)
+                top += regions[i].#element.outerHeight();
+
+            let bar = $("#drag-position-bar");
+            bar.stop();
+
+            if (!interpolate) {
+                bar.css("top", top);
+                bar.animate({opacity: 1.0}, {queue: false});
+                return;
+            }
+
+            bar.animate({opacity: 0.0}, 200, () => {
+                bar.css("top", top);
+                bar.animate({opacity: 1.0}, 200);
+            });
+        }
+
+        function lockRegionListHeight()
+        {
+                let height = 0;
+                for (let region of regions)
+                    height += region.#element.outerHeight();
+
+                let userInput = $("#user-input");
+                let regionList = $("#region-list");
+                let offset = regionList.offset().top - userInput.offset().top;
+                let minHeight = userInput.innerHeight() - offset;
+                regionList.css("height", Math.max(height, minHeight));
+                regionList.css("overflow", "hidden");
+                userInput.css("padding-bottom", 0);
+        }
+
+        function unlockRegionListHeight()
+        {
+                let regionList = $("#region-list");
+                regionList.css("height", "auto");
+                regionList.css("overflow", "visible");
+                $("#userInput").css("padding-bottom", "initial");
+        }
 
         function updateRegionOrder(mouseY)
         {
@@ -79,7 +133,7 @@ class Region
                 if (regions[i] == region)
                     continue;
 
-                let otherElem = regions[i].element;
+                let otherElem = regions[i].#element;
                 let otherTop = otherElem.offset().top;
                 let otherBottom = otherTop + otherElem.outerHeight();
                 let otherCenter = (otherTop + otherBottom) / 2;
@@ -116,14 +170,14 @@ class Region
 
         // Mouse dragging
         $(document).mousemove(function(event) {
-            if (!region.clicked)
+            if (!region.#clicked)
                 return;
 
-            let elem = region.element;
+            let elem = region.#element;
             let minDragDistance = emToPixels($("body"), MIN_DRAG_DISTANCE);
 
-            if (!region.dragging && Math.abs(event.pageY - region.dragStart) > minDragDistance) {
-                region.dragging = true;
+            if (!region.#dragging && Math.abs(event.pageY - region.#dragStart) > minDragDistance) {
+                region.#dragging = true;
 
                 lockRegionListHeight();
 
@@ -139,7 +193,7 @@ class Region
                 repositionRegions(region);
             }
 
-            if (!region.dragging)
+            if (!region.#dragging)
                 return;
 
             // Auto scroll
@@ -149,11 +203,11 @@ class Region
             let autoScrollDistance = emToPixels($("body"), AUTO_SCROLL_DISTANCE);
 
             let autoScroll = () => {
-                if (!region.dragging || !region.scrolling)
+                if (!region.#dragging || !region.#scrolling)
                     return;
 
                 let scrollSpeed;
-                let distance = region.scrollDistance;
+                let distance = region.#scrollDistance;
                 let top = -regionList.offset().top;
 
                 if (distance > 0) {
@@ -172,7 +226,7 @@ class Region
                 });
 
                 let parentTop = elem.parent().offset().top;
-                let mouseY = top + parentTop + region.dragOffset;
+                let mouseY = top + parentTop + region.#dragOffset;
 
                 userInput.animate({scrollTop: "+=" + scrollSpeed}, {
                     duration: 20,
@@ -186,30 +240,30 @@ class Region
 
             let scrollAreaTop = userInput.offset().top;
             let scrollAreaBottom = scrollAreaTop + userInput.innerHeight();
-            let headerTop = event.pageY - region.dragOffset;
+            let headerTop = event.pageY - region.#dragOffset;
             let headerBottom = headerTop + regionHeader.height();
             let distanceTop = Math.min(scrollAreaTop - headerTop, 0);
             let distanceBottom = Math.min(headerBottom - scrollAreaBottom, 0);
 
             if (distanceTop > -autoScrollDistance) {
-                region.scrollDistance = -distanceTop - autoScrollDistance;
+                region.#scrollDistance = -distanceTop - autoScrollDistance;
             } else if (distanceBottom > -autoScrollDistance) {
-                region.scrollDistance = distanceBottom + autoScrollDistance;
+                region.#scrollDistance = distanceBottom + autoScrollDistance;
             } else {
                 let parentTop = elem.parent().offset().top;
-                let top = event.pageY - parentTop - region.dragOffset;
+                let top = event.pageY - parentTop - region.#dragOffset;
                 let topMax = userInput.height() - regionList.offset().top;
                 elem.css("top", Math.min(Math.max(top, 0), topMax));
 
-                if (region.scrolling) {
-                    region.scrolling = false;
-                    region.scrollDistance = 0.0;
+                if (region.#scrolling) {
+                    region.#scrolling = false;
+                    region.#scrollDistance = 0.0;
                     userInput.stop();
                 }
             }
 
-            if (!region.scrolling && region.scrollDistance != 0.0) {
-                region.scrolling = true;
+            if (!region.#scrolling && region.#scrollDistance != 0.0) {
+                region.#scrolling = true;
                 autoScroll();
             }
 
@@ -217,18 +271,18 @@ class Region
         });
 
         $(document).mouseup(function(event) {
-            if (!region.clicked)
+            if (!region.#clicked)
                 return;
 
             setTimeout(() => {
                 unlockRegionListHeight();
-                region.element.css("z-index", "auto");
+                region.#element.css("z-index", "auto");
             }, 400);
 
             repositionRegions();
 
-            region.element.css("height", "auto");
-            region.element.animate({opacity: 1.0}, {queue: false});
+            region.#element.css("height", "auto");
+            region.#element.animate({opacity: 1.0}, {queue: false});
 
             $("body").css("user-select", "initial");
 
@@ -236,44 +290,44 @@ class Region
             bar.stop();
             bar.animate({opacity: 0.0});
 
-            let regionContent = region.element.find(".region-content");
+            let regionContent = region.#element.find(".region-content");
             regionContent.animate({height: region.contentHeight}, {
                 duration: 200,
                 queue: false,
                 complete: () => regionContent.css("height", "auto")
             });
 
-            region.clicked = false;
-            region.dragging = false;
+            region.#clicked = false;
+            region.#dragging = false;
         });
 
-        this.element.find(".drag-handle").mousedown(function(event) {
-            region.dragStart = event.pageY;
-            region.dragOffset = event.pageY - region.element.offset().top;
-            region.clicked = true;
-            region.scrolling = false;
+        this.#element.find(".drag-handle").mousedown(function(event) {
+            region.#dragStart = event.pageY;
+            region.#dragOffset = event.pageY - region.#element.offset().top;
+            region.#clicked = true;
+            region.#scrolling = false;
             $("body").css("user-select", "none");
         });
 
         // Delete button
-        this.element.find(".delete-button").click(function() {
-            if (region.deleting)
+        this.#element.find(".delete-button").click(function() {
+            if (region.#deleting)
                 return;
 
-            region.deleting = true;
+            region.#deleting = true;
 
             regions.splice(regions.indexOf(region), 1);
             repositionRegions();
             drawStickMap();
 
-            region.element.animate({height: 0}, {
+            region.#element.animate({height: 0}, {
                 queue: false,
-                complete: () => region.element.remove()
+                complete: () => region.#element.remove()
             });
         });
 
         // Move up button
-        this.element.find(".move-button-up").click(function() {
+        this.#element.find(".move-button-up").click(function() {
             let index = regions.indexOf(region);
             if (index == regions.length - 1)
                 return;
@@ -285,15 +339,15 @@ class Region
             repositionRegions();
             drawStickMap();
 
-            region.element.css("z-index", "50");
+            region.#element.css("z-index", "50");
             setTimeout(() => {
                 unlockRegionListHeight();
-                region.element.css("z-index", "auto");
+                region.#element.css("z-index", "auto");
             }, 400);
         });
 
         // Move down button
-        this.element.find(".move-button-down").click(function() {
+        this.#element.find(".move-button-down").click(function() {
             let index = regions.indexOf(region);
             if (index == 0)
                 return;
@@ -305,22 +359,22 @@ class Region
             repositionRegions();
             drawStickMap();
 
-            region.element.css("z-index", "50");
+            region.#element.css("z-index", "50");
             setTimeout(() => {
                 unlockRegionListHeight();
-                region.element.css("z-index", "auto");
+                region.#element.css("z-index", "auto");
             }, 400);
         });
 
         // Color input
-        this.element.find("#color-picker").change(function() {
+        this.#element.find("#color-picker").change(function() {
             region.color = [...parseColorHex(this.value), region.color[3]];
             region.#updateColorSquare();
             region.#updateColorHex();
             drawStickMap();
         });
 
-        this.element.find(`#color-hex`).on("input", function() {
+        this.#element.find(`#color-hex`).on("input", function() {
             region.color = filterColorHex(this);
             region.#updateColorSquare();
             region.#updateColorPicker();
@@ -329,65 +383,66 @@ class Region
 
         // Quadrant selection
         for (let i = 0; i < 4; i++) {
-            this.element.find(`#quadrant${i + 1}`).change(function() {
+            this.#element.find(`#quadrant${i + 1}`).change(function() {
                 region.quadrants[i] = this.checked;
                 drawStickMap();
             });
         }
 
         // Display mode
-        this.element.find("#display-mode").change(function() {
-            region.#updateProperty('displayMode', this.value);
+        this.#element.find("#display-mode").change(function() {
+            region.#changeProperty('displayMode', this.value);
         });
 
         // Coordinate input
-        this.element.find("#x-min").on("input", function() {
-            region.#updateProperty('minX', filterCoord(this));
+        this.#element.find("#x-min").on("input", function() {
+            region.#changeProperty('minX', filterCoord(this));
         });
 
-        this.element.find("#x-max").on("input", function() {
-            region.#updateProperty('maxX', filterCoord(this));
+        this.#element.find("#x-max").on("input", function() {
+            region.#changeProperty('maxX', filterCoord(this));
         });
 
-        this.element.find("#y-min").on("input", function() {
-            region.#updateProperty('minY', filterCoord(this));
+        this.#element.find("#y-min").on("input", function() {
+            region.#changeProperty('minY', filterCoord(this));
         });
 
-        this.element.find("#y-max").on("input", function() {
-            region.#updateProperty('maxY', filterCoord(this));
+        this.#element.find("#y-max").on("input", function() {
+            region.#changeProperty('maxY', filterCoord(this));
         });
 
-        this.element.find("#x-min").change(function() { roundCoord(this); });
-        this.element.find("#x-max").change(function() { roundCoord(this); });
-        this.element.find("#y-min").change(function() { roundCoord(this); });
-        this.element.find("#y-max").change(function() { roundCoord(this); });
-        this.element.find("#magnitude-min").change(function() { roundCoord(this); });
-        this.element.find("#magnitude-max").change(function() { roundCoord(this); });
+        this.#element.find("#x-min").change(function() { roundCoord(this); });
+        this.#element.find("#x-max").change(function() { roundCoord(this); });
+        this.#element.find("#y-min").change(function() { roundCoord(this); });
+        this.#element.find("#y-max").change(function() { roundCoord(this); });
+        this.#element.find("#magnitude-min").change(function() { roundCoord(this); });
+        this.#element.find("#magnitude-max").change(function() { roundCoord(this); });
 
         // Angle input
-        this.element.find("#angle-min").on("input", function() {
-            region.#updateProperty('angleMin', filterAngle(this));
+        this.#element.find("#angle-min").on("input", function() {
+            region.#changeProperty('angleMin', filterAngle(this));
         });
 
-        this.element.find("#angle-max").on("input", function() {
-            region.#updateProperty('angleMax', filterAngle(this));
+        this.#element.find("#angle-max").on("input", function() {
+            region.#changeProperty('angleMax', filterAngle(this));
         });
 
         // Magnitude input
-        this.element.find("#magnitude-min").on("input", function() {
-            region.#updateProperty('magnitudeMin', filterCoord(this));
+        this.#element.find("#magnitude-min").on("input", function() {
+            region.#changeProperty('magnitudeMin', filterCoord(this));
         });
 
-        this.element.find("#magnitude-max").on("input", function() {
-            region.#updateProperty('magnitudeMax', filterCoord(this));
+        this.#element.find("#magnitude-max").on("input", function() {
+            region.#changeProperty('magnitudeMax', filterCoord(this));
         });
-
-        this.element.prependTo("#region-list");
     }
 
-    get name()
+    moveTo(top, interpolate=true)
     {
-        return this.element.find("#region-name").val();
+        if (interpolate)
+            this.#element.animate({top: top}, {queue: false});
+        else
+            this.#element.css("top", top);
     }
 
     matchesCoordinate(x, y)
@@ -478,7 +533,7 @@ class Region
         return true;
     }
 
-    #updateProperty(property, value)
+    #changeProperty(property, value)
     {
         if (value !== region[property]) {
             this[property] = value;
@@ -486,29 +541,39 @@ class Region
         }
     }
 
-    get colorHex()
+    #updateAll()
     {
-        return this.color.map(x => x.toString(16).padStart(2, "0")).join("");
+        this.#updateColorSquare();
+        this.#updateColorPicker();
+        this.#updateColorHex();
+        this.quadrants.forEach((v, i) => this.#element.find(`#quadrant${i + 1}`).val(v));
+        this.#element.find("#display-mode").val(this.displayMode);
+        this.#element.find("#x-min").val(this.minX);
+        this.#element.find("#x-max").val(this.maxX);
+        this.#element.find("#y-min").val(this.minY);
+        this.#element.find("#y-max").val(this.maxY);
+        this.#element.find("#angle-min").val(this.angleMin);
+        this.#element.find("#angle-max").val(this.angleMax);
+        this.#element.find("#magnitude-min").val(this.magnitudeMin);
+        this.#element.find("#magnitude-max").val(this.magnitudeMax);
     }
 
     #updateColorSquare()
     {
         const rgbStyle  = "#" + this.colorHex.slice(0, 6);
         const rgbaStyle = "#" + this.colorHex;
-        $(this.element).find("#color-square-left").css("background-color", rgbStyle);
-        $(this.element).find("#color-square-right").css("background-color", rgbaStyle);
+        this.#element.find("#color-square-left").css("background-color", rgbStyle);
+        this.#element.find("#color-square-right").css("background-color", rgbaStyle);
     }
 
     #updateColorPicker()
     {
-        const hex = "#" + this.color.slice(0, 3).map(x => x.toString(16).padStart(2, "0")).join("");
-        $(this.element).find("#color-picker").val(hex);
+        this.#element.find("#color-picker").val("#" + this.colorHex.slice(0, 6));
     }
 
     #updateColorHex()
     {
-        const hex = this.color.map(x => x.toString(16).padStart(2, "0")).join("");
-        $(this.element).find("#color-hex").val(hex);
+        this.#element.find("#color-hex").val("#" + this.colorHex);
     }
 }
 
@@ -890,74 +955,24 @@ function drawFrame(timestamp)
     }
 }
 
-function repositionRegions(exclude=null, interpolate=true)
-{
-    let top = 0;
-    for (let i = regions.length - 1; i >= 0; i--) {
-        let elem = regions[i].element;
-        if (regions[i] == exclude) {
-            top += emToPixels(elem, 0.5);
-            continue;
-        }
-
-        if (interpolate)
-            elem.animate({top: top}, {queue: false});
-        else
-            elem.css("top", top);
-
-        top += elem.outerHeight();
-    }
-}
-
 function addRegion()
 {
     regions.push(new Region("Region " + (regions.length + 1)));
     repositionRegions();
 }
 
-function moveDragPositionBar(index, interpolate=true)
+function repositionRegions(exclude=null, interpolate=true)
 {
     let top = 0;
+    for (let i = regions.length - 1; i >= 0; i--) {
+        if (regions[i] == exclude) {
+            top += emToPixels($("body"), 0.5);
+            continue;
+        }
 
-    for (let i = regions.length - 1; i > index; i--)
-        top += regions[i].element.outerHeight();
-
-    let bar = $("#drag-position-bar");
-    bar.stop();
-
-    if (!interpolate) {
-        bar.css("top", top);
-        bar.animate({opacity: 1.0}, {queue: false});
-        return;
+        regions[i].moveTo(top, interpolate);
+        top += regions[i].outerHeight;
     }
-
-    bar.animate({opacity: 0.0}, 200, () => {
-        bar.css("top", top);
-        bar.animate({opacity: 1.0}, 200);
-    });
-}
-
-function lockRegionListHeight()
-{
-        let height = 0;
-        for (let region of regions)
-            height += region.element.outerHeight();
-
-        let userInput = $("#user-input");
-        let regionList = $("#region-list");
-        let offset = regionList.offset().top - userInput.offset().top;
-        let minHeight = userInput.innerHeight() - offset;
-        regionList.css("height", Math.max(height, minHeight));
-        regionList.css("overflow", "hidden");
-        userInput.css("padding-bottom", 0);
-}
-
-function unlockRegionListHeight()
-{
-        let regionList = $("#region-list");
-        regionList.css("height", "auto");
-        regionList.css("overflow", "visible");
-        $("#userInput").css("padding-bottom", "initial");
 }
 
 $(function()
