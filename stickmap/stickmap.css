@@ -211,7 +211,7 @@ input[type=text] {
     display: flex;
 }
 
-.add-button {
+.button {
     user-select: none;
     border-radius: var(--border-radius);
     font-size: 200%;
@@ -219,29 +219,33 @@ input[type=text] {
     height: 0.75em;
     line-height: 0.5em;
     color: white;
-    background-color: #20c020;
     font-weight: bolder;
     text-align: center;
     vertical-align: middle;
 }
 
+.add-button {
+    background-color: #20c020;
+}
+
+div:hover > .add-button {
+    background-color: #50e050;
+}
+
+div:active > .add-button {
+    background-color: #10a010;
+}
+
 .delete-button {
-    user-select: none;
-    border-radius: var(--border-radius);
-    font-size: 200%;
-    width: 0.75em;
-    height: 0.75em;
-    line-height: 0.5em;
-    color: white;
     background-color: #e05050;
-    font-weight: bolder;
-    text-align: center;
-    vertical-align: middle;
-    cursor: pointer;
 }
 
 .delete-button:hover {
     background-color: #f07070;
+}
+
+.delete-button:active {
+    background-color: #c03030;
 }
 
 .move-button {
@@ -434,14 +438,6 @@ body.vertical #user-input::-webkit-scrollbar-button {
     line-height: 1.5em;
     cursor: pointer;
     width: fit-content;
-}
-
-#add-region:hover .add-button {
-    background-color: #50e050;
-}
-
-#add-region:active .add-button {
-    background-color: #10a010;
 }
 
 #add-region:hover .clickable {
