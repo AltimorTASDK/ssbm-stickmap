@@ -535,13 +535,13 @@ class Region
 
     #changeProperty(property, value)
     {
-        if (value !== region[property]) {
+        if (value !== this[property]) {
             this[property] = value;
             drawStickMap();
         }
     }
 
-    #updateAll()
+    #updateUI()
     {
         this.#updateColorSquare();
         this.#updateColorPicker();
