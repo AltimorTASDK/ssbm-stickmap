@@ -17,6 +17,10 @@ canvas {
     margin-right: auto;
 }
 
+label {
+    white-space: nowrap;
+}
+
 select {
     border-radius: 0.15rem;
     padding: 0.1em;
@@ -143,11 +147,20 @@ input[type=text] {
     border-bottom-right-radius: 0.1em;
 }
 
-.region-grid {
-    display: grid;
+.region-options {
+    display: flex;
     padding: 0.5em;
     row-gap: 0.5em;
+    column-gap: 1em;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.region-option-group {
+    display: grid;
+    gap: 0.5em;
     grid-template-columns: [option] 1fr [value] auto;
+    flex: 1;
 }
 
 .justify-end {

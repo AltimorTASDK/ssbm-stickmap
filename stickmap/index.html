@@ -23,51 +23,55 @@
                     </div>
                 </div>
                 <div class="region-content">
-                    <div class="region-grid">
-                        <label>Color</label>
-                        <div class="justify-end flex-container">
-                            <input id="color-picker" type="color" tabindex="-1" value="#ffffff"></input>
-                            <div id="color-square-left"></div>
-                            <div id="color-square-right"></div>
-                            <label class="left-margin">#</label>
-                            <input id="color-hex" type="text" size="8" value="ffffffff" spellcheck="false"/>
+                    <div class="region-options">
+                        <div class="region-option-group">
+                            <label>Color</label>
+                            <div class="justify-end flex-container">
+                                <input id="color-picker" type="color" tabindex="-1" value="#ffffff"></input>
+                                <div id="color-square-left"></div>
+                                <div id="color-square-right"></div>
+                                <label class="left-margin">#</label>
+                                <input id="color-hex" type="text" size="8" value="ffffffff" spellcheck="false"/>
+                            </div>
+                            <label class="vertical-center">Quadrants</label>
+                            <div class="justify-end quadrant-grid">
+                                <input id="quadrant2" type="checkbox" class="quadrant" text="2"/>
+                                <input id="quadrant1" type="checkbox" class="quadrant" text="1"/>
+                                <input id="quadrant3" type="checkbox" class="quadrant" text="3"/>
+                                <input id="quadrant4" type="checkbox" class="quadrant" text="4"/>
+                            </div>
+                            <label>Display Mode</label>
+                            <select id="display-mode" class="justify-end">
+                                <option value="0">Normal</option>
+                                <option value="1">Outline</option>
+                                <option value="2">Rim Only</option>
+                            </select>
                         </div>
-                        <label class="vertical-center">Quadrants</label>
-                        <div class="justify-end quadrant-grid">
-                            <input id="quadrant2" type="checkbox" class="quadrant" text="2"/>
-                            <input id="quadrant1" type="checkbox" class="quadrant" text="1"/>
-                            <input id="quadrant3" type="checkbox" class="quadrant" text="3"/>
-                            <input id="quadrant4" type="checkbox" class="quadrant" text="4"/>
-                        </div>
-                        <label>Display Mode</label>
-                        <select id="display-mode" class="justify-end">
-                            <option value="0">Normal</option>
-                            <option value="1">Outline</option>
-                            <option value="2">Rim Only</option>
-                        </select>
-                        <label>X</label>
-                        <div class="justify-end flex-container">
-                            <input id="x-min" type="text" size="6" value="0.0000" spellcheck="false"/>
-                            <span class="horizontal-margin">to</span>
-                            <input id="x-max" type="text" size="6" value="1.0000" spellcheck="false"/>
-                        </div>
-                        <label>Y</label>
-                        <div class="justify-end flex-container">
-                            <input id="y-min" type="text" size="6" value="0.0000" spellcheck="false"/>
-                            <span class="horizontal-margin">to</span>
-                            <input id="y-max" type="text" size="6" value="1.0000" spellcheck="false"/>
-                        </div>
-                        <label>Angle</label>
-                        <div class="justify-end flex-container">
-                            <input id="angle-min" type="text" size="6" value="0.00" spellcheck="false"/>
-                            <span class="horizontal-margin">to</span>
-                            <input id="angle-max" type="text" size="6" value="90.00" spellcheck="false"/>
-                        </div>
-                        <label>Magnitude</label>
-                        <div class="justify-end flex-container">
-                            <input id="magnitude-min" type="text" size="6" value="0.0000" spellcheck="false"/>
-                            <span class="horizontal-margin">to</span>
-                            <input id="magnitude-max" type="text" size="6" value="1.0000" spellcheck="false"/>
+                        <div class="region-option-group">
+                            <label>X</label>
+                            <div class="justify-end flex-container">
+                                <input id="x-min" type="text" size="6" value="0.0000" spellcheck="false"/>
+                                <span class="horizontal-margin">to</span>
+                                <input id="x-max" type="text" size="6" value="1.0000" spellcheck="false"/>
+                            </div>
+                            <label>Y</label>
+                            <div class="justify-end flex-container">
+                                <input id="y-min" type="text" size="6" value="0.0000" spellcheck="false"/>
+                                <span class="horizontal-margin">to</span>
+                                <input id="y-max" type="text" size="6" value="1.0000" spellcheck="false"/>
+                            </div>
+                            <label>Angle</label>
+                            <div class="justify-end flex-container">
+                                <input id="angle-min" type="text" size="6" value="0.00" spellcheck="false"/>
+                                <span class="horizontal-margin">to</span>
+                                <input id="angle-max" type="text" size="6" value="90.00" spellcheck="false"/>
+                            </div>
+                            <label>Magnitude</label>
+                            <div class="justify-end flex-container">
+                                <input id="magnitude-min" type="text" size="6" value="0.0000" spellcheck="false"/>
+                                <span class="horizontal-margin">to</span>
+                                <input id="magnitude-max" type="text" size="6" value="1.0000" spellcheck="false"/>
+                            </div>
                         </div>
                     </div>
                 </div>
