@@ -136,15 +136,18 @@ input[type=text] {
 }
 
 .region-content {
+    background-color: #383838;
+    margin-bottom: 0.5em;
+    overflow-y: hidden;
+    border-bottom-left-radius: 0.1em;
+    border-bottom-right-radius: 0.1em;
+}
+
+.region-grid {
     display: grid;
     padding: 0.5em;
     row-gap: 0.5em;
     grid-template-columns: [option] 1fr [value] auto;
-    border-bottom-left-radius: 0.1em;
-    border-bottom-right-radius: 0.1em;
-    background-color: #383838;
-    margin-bottom: 0.5em;
-    overflow-y: hidden;
 }
 
 .justify-end {
