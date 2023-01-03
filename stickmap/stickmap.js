@@ -375,6 +375,11 @@ class Region
             }, 400);
         });
 
+        // Name input
+        this.#element.find("#region-name").on("input", function() {
+            region.name = this.value;
+        });
+
         // Color input
         this.#element.find("#color-picker").change(function() {
             region.color = [...parseColorHex(this.value), region.color[3]];
