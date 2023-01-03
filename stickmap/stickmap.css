@@ -492,15 +492,18 @@ body.vertical #canvas-centered {
         1px -1px black;
 }
 
-#loading-screen {
+.overlay {
     position: absolute;
-    display: table;
     width: 100%;
     height: 100%;
+    z-index: 150;
+}
+
+#loading-screen {
+    display: table;
     background: black;
     color: #00ebff;
     font-size: 3.2rem;
-    z-index: 150;
     user-select: none;
 }
 
