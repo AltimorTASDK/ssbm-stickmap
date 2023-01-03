@@ -74,6 +74,8 @@ class Region
 
     #deleting = false;
 
+    #contentHeight;
+
     get colorHex() { return this.color.map(x => x.toString(16).padStart(2, "0")).join(""); }
 
     get outerHeight() { return this.#element.outerHeight(); }
