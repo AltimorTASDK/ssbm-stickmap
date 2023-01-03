@@ -314,7 +314,7 @@ body.horizontal .move-button-container {
     flex-direction: column;
 }
 
-.drag-handle:before {
+.drag-handle::before {
     display: block;
     content: "";
     width: 2em;
@@ -443,7 +443,7 @@ body.vertical #user-input::-webkit-scrollbar-button {
     opacity: 0;
 }
 
-#drag-position-bar:before {
+#drag-position-bar::before {
     display: block;
     content: "";
     position: absolute;
