@@ -168,6 +168,8 @@ input[type=text] {
 }
 
 .region-header {
+    display: grid;
+    grid-template-columns: auto 1fr;
     border-top-left-radius: 0.1em;
     border-top-right-radius: 0.1em;
     background-color: #59bde7;
@@ -178,7 +180,6 @@ input[type=text] {
     grid-template-columns: 1fr auto auto;
     column-gap: 0.25em;
     padding: 0.5em;
-    flex-grow: 1;
 }
 
 .vertical-center {
