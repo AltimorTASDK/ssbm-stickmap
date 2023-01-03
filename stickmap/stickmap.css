@@ -1,5 +1,6 @@
 html {
     font-size: 1.25em;
+
     --text-color:         #f0f0f0;
     --focus-color:        #505050;
     --accent-color:       #59bde7;
@@ -7,6 +8,8 @@ html {
     --bg-color:           #202020;
     --fg-color:           #383838;
     --bright-color:       #00ebff;
+
+    --border-radius: 0.15rem;
 }
 
 body {
@@ -39,7 +42,7 @@ select {
 }
 
 input {
-    border-radius: 0.15rem;
+    border-radius: var(--border-radius);
     padding: 0.1em 0.2em;
     background-color: var(--bg-color);
     font-family: 'Monaco', 'Consolas', 'Courier New', monospace;
@@ -72,7 +75,7 @@ input:focus {
     appearance: none;
     margin: 0;
     padding: 0;
-    border-radius: 0.15rem;
+    border-radius: var(--border-radius);
     width: 1.2em;
     height: 1.2em;
     background-color: var(--bg-color);
@@ -96,7 +99,7 @@ input:focus {
 #color-square-left, #color-square-right {
     width: 0.75em;
     height: 1.5em;
-    border-radius: 0.15rem;
+    border-radius: var(--border-radius);
     background-color: white;
 }
 
@@ -146,8 +149,8 @@ input[type=text] {
     background-color: var(--fg-color);
     margin-bottom: 0.5em;
     overflow-y: hidden;
-    border-bottom-left-radius: 0.1em;
-    border-bottom-right-radius: 0.1em;
+    border-bottom-left-radius: var(--border-radius);
+    border-bottom-right-radius: var(--border-radius);
 }
 
 .region-options {
@@ -173,8 +176,8 @@ input[type=text] {
 .region-header {
     display: grid;
     grid-template-columns: auto 1fr;
-    border-top-left-radius: 0.1em;
-    border-top-right-radius: 0.1em;
+    border-top-left-radius: var(--border-radius);
+    border-top-right-radius: var(--border-radius);
     background-color: var(--accent-color);
 }
 
@@ -196,7 +199,7 @@ input[type=text] {
 
 .add-button {
     user-select: none;
-    border-radius: 0.15rem;
+    border-radius: var(--border-radius);
     font-size: 200%;
     width: 0.75em;
     height: 0.75em;
@@ -210,7 +213,7 @@ input[type=text] {
 
 .delete-button {
     user-select: none;
-    border-radius: 0.15rem;
+    border-radius: var(--border-radius);
     font-size: 200%;
     width: 0.75em;
     height: 0.75em;
@@ -230,7 +233,7 @@ input[type=text] {
 .move-button {
     user-select: none;
     box-sizing: border-box;
-    border-radius: 0.15rem;
+    border-radius: var(--border-radius);
     color: white;
     background-color: #a0a0a0;
     font-weight: bolder;
