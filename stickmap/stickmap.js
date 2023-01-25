@@ -8,7 +8,7 @@ const MINIMUM_FRAMERATE = 255;
 var GATE_RADIUS = 103; // Unclamped range
 const CLAMP_RADIUS = 80; // Clamped range
 const actualFULL_RANGE = 127; // Full range
-const actualGATE_RADIUS = 103 // unmodified Unclamped range
+const actualGATE_RADIUS = 103; // unmodified Unclamped range
 
 // How much to darken clamped coordinates
 var CLAMPED_COLOR_MULT = 1.0 / 3.0;
