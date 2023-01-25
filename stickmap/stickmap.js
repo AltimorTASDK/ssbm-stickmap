@@ -8,7 +8,7 @@ const MINIMUM_FRAMERATE = 255;
 var GATE_RADIUS = 103; // Unclamped range
 const CLAMP_RADIUS = 80; // Clamped range
 const actualFULL_RANGE = 127; // Full range
-const actualGATE_RADIUS = 103; // unmodified Unclamped range
+const actualGATE_RADIUS = 103 // unmodified Unclamped range
 
 // How much to darken clamped coordinates
 var CLAMPED_COLOR_MULT = 1.0 / 3.0;
@@ -40,6 +40,19 @@ let useGate = false;
 
 let useFullRange = true;
 
+let useSelection = false;
+
+let selectionName = `Baba Booey`;
+let selectionQuadrants = [true, true, false, false]
+let selectionMinX = 10;
+let selectionMinY = 20;
+let selectionMaxX = 70;
+let selectionMaxY = 80;
+let selectionAngleMin = 30;
+let selectionAngleMax = 40;
+let selectionMagnitudeMin = 50;
+let selectionMagnitudeMax = 60;
+
 let regions = [];
 let template = null;
 let canvas = null;
@@ -52,19 +65,19 @@ let drawY = 0;
 
 class Region
 {
-    name = `Region ${regions.length + 1}`;
+    name = useSelection ? selectionName : `Region ${regions.length + 1}`;
 
     color = [255, 255, 255, 255];
-    quadrants = [false, false, false, false];
+    quadrants = useSelection ? selectionQuadrants : [false, false, false, false];
     displayMode = DisplayMode.Normal;
-    minX = 0;
-    minY = 0;
-    maxX = CLAMP_RADIUS;
-    maxY = CLAMP_RADIUS;
-    angleMin = 0;
-    angleMax = 90;
-    magnitudeMin = 0;
-    magnitudeMax = CLAMP_RADIUS;
+    minX = useSelection ? selectionMinX : 0;
+    minY = useSelection ? selectionMinY : 0;
+    maxX = useSelection ? selectionMaxX : CLAMP_RADIUS;
+    maxY = useSelection ? selectionMaxY : CLAMP_RADIUS;
+    angleMin = useSelection ? selectionAngleMin : 0;
+    angleMax = useSelection ? selectionAngleMax : 90;
+    magnitudeMin = useSelection ? selectionMagnitudeMin : 0;
+    magnitudeMax = useSelection ? selectionMagnitudeMax : CLAMP_RADIUS;
 
     #element = template.clone();
 
@@ -1051,6 +1064,10 @@ function toggleFullRange() {
     }
     updateCanvasSize();
     drawStickMap();
+}
+
+function toggleSelection() {
+    useSelection = !useSelection
 }
 
 function updateCanvasSize()
