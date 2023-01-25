@@ -5,11 +5,13 @@ const DEADZONE = 22;
 // Minimum framerate to maintain while redrawing canvas
 const MINIMUM_FRAMERATE = 255;
 
-const GATE_RADIUS = 103; // Unclamped range
+var GATE_RADIUS = 103; // Unclamped range
 const CLAMP_RADIUS = 80; // Clamped range
+const actualFULL_RANGE = 127; // Full range
+const actualGATE_RADIUS = 103 // unmodified Unclamped range
 
 // How much to darken clamped coordinates
-const CLAMPED_COLOR_MULT = 1.0 / 3.0;
+var CLAMPED_COLOR_MULT = 1.0 / 3.0;
 
 const GRID_LINE_WIDTH = 1;
 const CANVAS_SCALE = 6;
@@ -34,7 +36,9 @@ let loading = true;
 
 let showingJson = false;
 
-let useGate = true;
+let useGate = false;
+
+let useFullRange = true;
 
 let regions = [];
 let template = null;
@@ -812,12 +816,32 @@ function getGateRadius(x, y)
                        / Math.sin(Math.PI - angle - halfInteriorAngle);
 }
 
-function isVisibleCoordinate(x, y)
-{
-    if (useGate)
+function isVisibleCoordinateGATE(x, y) {
+    GATE_RADIUS = actualGATE_RADIUS;
+    CLAMPED_COLOR_MULT = 1.0 / 3.0;
+    if (useGate) {
         return x*x + y*y <= getGateRadius(x, y)**2;
-    else
+    } else {
         return x*x + y*y <= CLAMP_RADIUS**2;
+}
+}
+
+function isVisibleCoordinateFULLRANGE(x, y) {
+    GATE_RADIUS = actualFULL_RANGE;
+    CLAMPED_COLOR_MULT = 2.0 / 3.0;
+    if (useGate) {
+        return true;
+    } else {
+        return x*x + y*y <= CLAMP_RADIUS**2;
+    }
+}
+
+function isVisibleCoordinate(x, y) {
+    if (useFullRange === true) {
+        return isVisibleCoordinateFULLRANGE(x, y);
+    } else {
+        return isVisibleCoordinateGATE(x, y);
+    }
 }
 
 function clampCoordinates(x, y)
@@ -1012,6 +1036,19 @@ function toggleJson()
 function toggleGate()
 {
     useGate = !useGate;
+    updateCanvasSize();
+    drawStickMap();
+}
+
+function toggleFullRange() {
+    useGate = true;
+    useFullRange = !useFullRange;
+    if (useFullRange === true) {
+        toggleGate();
+    } else {
+        updateCanvasSize();
+        drawStickMap();
+    }
     updateCanvasSize();
     drawStickMap();
 }
