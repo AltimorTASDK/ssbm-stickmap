@@ -95,6 +95,9 @@
                         <div class="button add-button"><span>+</span></div>
                         <label>Add New Region</label>
                     </div>
+                    <label for="region-select">Selection:</label>
+                        <select id="region-select" name="region-select" onchange="updateSelection()"></select>
+                        <script>createDropdown()</script>
                     <div class="labeled-button" onclick="toggleSelection()">
                         <div class="button selection-toggle"><div><div></div></div></div>
                         <label>Swap Between Blank and Selection New Region</label>
