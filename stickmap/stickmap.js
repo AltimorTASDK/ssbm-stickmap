@@ -75,18 +75,18 @@ let canvasImageSize;
 
 var regionArray = [
     {
-    name: `Jab during Wait`,
+        name: `Jab during Wait`,
         color: [
-        255,
-        255,
-        255,
-        255
+            255,
+            255,
+            255,
+            255
         ],
         quadrants: [
-        false,
-        true,
-        true,
-        false
+            false,
+            true,
+            true,
+            false
         ],
         displayMode: 0,
         minX: 23,
@@ -97,30 +97,20 @@ var regionArray = [
         angleMax: 50.00,
         magnitudeMin: 0,
         magnitudeMax: 80
-        }
-]     
-    
+    }
+]
+
 
 
 /*Selection Functions*/
 
 function createDropdown() {
-    var selectedOption = document.getElementById("region-select").value;
     for (var i = 0; i < regionArray.length; i++) {
         var option = document.createElement("option");
         option.text = regionArray[i].name;
         document.getElementById("region-select").add(option);
     }
-    updateSelection();
-}
-
-function updateSelection() {
-    for(var i = 0; i < regionArray.length; i++){
-        if(regionArray[i].name === selectedOption){
-        selectedRegion = regionArray[selectedOption];
-        break;
-        }
-        }
+    $('#region-select').prop('selectedIndex', -1);
 }
 
 // Saved between partial canvas draws
@@ -129,19 +119,19 @@ let drawY = 0;
 
 class Region
 {
-    name = useSelection ? selectedRegion.name : `Region ${regions.length + 1}`;
+    name = `Region ${regions.length + 1}`;
 
     color = [255, 255, 255, 255];
     quadrants = [false, false, false, false];
     displayMode = DisplayMode.Normal;
-    minX = useSelection ? selectedRegion.minX : 0;
-    minY = useSelection ? selectedRegion.minY : 0;
-    maxX = useSelection ? selectedRegion.maxX : CLAMP_RADIUS;
-    maxY = useSelection ? selectedRegion.maxY : CLAMP_RADIUS;
-    angleMin = useSelection ? selectedRegion.angleMin : 0;
-    angleMax = useSelection ? selectedRegion.angleMax : 90;
-    magnitudeMin = useSelection ? selectedRegion.magnitudeMin : 0;
-    magnitudeMax = useSelection ? selectedRegion.magnitudeMax : CLAMP_RADIUS;
+    minX = 0;
+    minY = 0;
+    maxX = CLAMP_RADIUS;
+    maxY = CLAMP_RADIUS;
+    angleMin = 0;
+    angleMax = 90;
+    magnitudeMin = 0;
+    magnitudeMax = CLAMP_RADIUS;
 
     #element = template.clone();
 
@@ -676,8 +666,7 @@ class Region
     }
 }
 
-function roundCoord(elem)
-{
+function roundCoord(elem) {
     let selectionStart = elem.selectionStart;
     let selectionEnd = elem.selectionEnd;
     elem.value = (Math.round(parseFloat(elem.value) * CLAMP_RADIUS) / CLAMP_RADIUS).toFixed(4);
@@ -685,16 +674,14 @@ function roundCoord(elem)
     elem.selectionEnd = selectionEnd;
 }
 
-function parseColorHex(string)
-{
+function parseColorHex(string) {
     if (string.startsWith("#"))
         string = string.slice(1);
 
     return string.match(/../g).map(octet => parseInt(octet, 16));
 }
 
-function parseReplacementString(match, replacement)
-{
+function parseReplacementString(match, replacement) {
     return replacement.replaceAll(
         /\$(?:((\d)?\d)|<([^>]*)>|([&`'$]))/g,
         (substring, groupNum, groupDigit, groupName, symbol) => {
@@ -706,11 +693,11 @@ function parseReplacementString(match, replacement)
                 return match.groups[groupName] ?? "";
 
             switch (symbol) {
-            case "$": return "$";
-            case "&": return match[0];
-            case "`": return match.input.slice(0, match.index);
-            case "'": return match.input.slice(match.index + match[0].length);
-            default:  return substring;
+                case "$": return "$";
+                case "&": return match[0];
+                case "`": return match.input.slice(0, match.index);
+                case "'": return match.input.slice(match.index + match[0].length);
+                default: return substring;
             }
         });
 }
@@ -764,71 +751,66 @@ function filterElemValue(elem, ...filters) {
     elem.selectionEnd = selectionEnd;
 }
 
-function filterColorHex(elem)
-{
+function filterColorHex(elem) {
     filterElemValue(elem,
-        [/[^\da-fA-F]/g,                 ""],         // Remove invalid characters
+        [/[^\da-fA-F]/g, ""],         // Remove invalid characters
         [/(?<caret>).(?=.*$(?<=.{8}))/g, ""],         // Replace digit when over 8 digits
-        [/(?<caret>)(?=.*$(?<!.{8}))/g,  "0"],        // Insert 0 when backspacing
-        [/$(?<!.{8})/,                   "00000000"], // Ensure 8 digits
-        [/(?<=.{8,}).+$/,                ""]);        // Truncate to 8 digits
+        [/(?<caret>)(?=.*$(?<!.{8}))/g, "0"],        // Insert 0 when backspacing
+        [/$(?<!.{8})/, "00000000"], // Ensure 8 digits
+        [/(?<=.{8,}).+$/, ""]);        // Truncate to 8 digits
 
     return parseColorHex(elem.value);
 }
 
-function filterCoord(elem)
-{
+function filterCoord(elem) {
     filterElemValue(elem,
-        [/[^\d.]/g,                       ""],     // Remove invalid characters
-        [/(?<=^\d)(\d)(?<caret>)\./,      ".$1"],  // Automatically type digits after decimal
-        [/(?<=^\d)(?<caret>)\d(?=\.)/,    ""],     // Type over ones digit
-        [/^(\d{0,4}$)/,                   "0.$1"], // Automatically prepend decimal
-        [/(?<=^\d+)(?=\d{4}$)/,           "."],    // Automatically insert decimal
-        [/(?<=\.)\./g,                    ""],     // Remove duplicate decimal points
-        [/^\.\d\./,                       "0."],   // Overwrite ones digit with decimal point
-        [/^(?=\.)/,                       "0"],    // Prepend leading 0
-        [/.+(?=\d\.)/g,                   ""],     // Set new decimal point
+        [/[^\d.]/g, ""],     // Remove invalid characters
+        [/(?<=^\d)(\d)(?<caret>)\./, ".$1"],  // Automatically type digits after decimal
+        [/(?<=^\d)(?<caret>)\d(?=\.)/, ""],     // Type over ones digit
+        [/^(\d{0,4}$)/, "0.$1"], // Automatically prepend decimal
+        [/(?<=^\d+)(?=\d{4}$)/, "."],    // Automatically insert decimal
+        [/(?<=\.)\./g, ""],     // Remove duplicate decimal points
+        [/^\.\d\./, "0."],   // Overwrite ones digit with decimal point
+        [/^(?=\.)/, "0"],    // Prepend leading 0
+        [/.+(?=\d\.)/g, ""],     // Set new decimal point
         [/(?<caret>).(?=.*$(?<=\d{5}))/g, ""],     // Replace digit when over 4 decimal places
-        [/(?<caret>)(?=\d*$(?<!\d{4}))/g,  "0"],   // Insert 0 when backspacing
-        [/$(?<!\d{4})/,                   "0000"], // Ensure 4 decimal places
-        [/^[2-9]/,                        "1"],    // Cap ones digit to 1
-        [/(?<=^1(?<caret>).*)[1-9]/g,     "0"],    // Zero out fractional digits when inputting 1.0
-        [/^1(?!\.0+$)/,                   "0"],    // Modulo 1 when setting fractional digits
-        [/(?<=\.\d{4,}).+$/,              ""]);    // Truncate to 4 decimal places
+        [/(?<caret>)(?=\d*$(?<!\d{4}))/g, "0"],   // Insert 0 when backspacing
+        [/$(?<!\d{4})/, "0000"], // Ensure 4 decimal places
+        [/^[2-9]/, "1"],    // Cap ones digit to 1
+        [/(?<=^1(?<caret>).*)[1-9]/g, "0"],    // Zero out fractional digits when inputting 1.0
+        [/^1(?!\.0+$)/, "0"],    // Modulo 1 when setting fractional digits
+        [/(?<=\.\d{4,}).+$/, ""]);    // Truncate to 4 decimal places
 
     return Math.round(parseFloat(elem.value) * CLAMP_RADIUS);
 }
 
-function filterAngle(elem)
-{
+function filterAngle(elem) {
     filterElemValue(elem,
-        [/[^\d.]/g,                       ""],      // Remove invalid characters
-        [/(?<=^\d\d)(\d)(?<caret>)\./,    ".$1"],   // Automatically type digits after decimal
-        [/(?<=^\d)(?<caret>)\d(?=\d\.)/,  ""],      // Type over tens digit
-        [/(?<=^0)(?<caret>)\d(?=\.)/,     ""],      // Type over ones digit with zero
-        [/(?<=^\d\d)(?<caret>)\d(?=\.)/,  ""],      // Type over ones digit
-        [/(?<=^\d{0,2})$/,                ".00"],   // Automatically append decimal
-        [/(?<=^\d+)(?=\d{2}$)/,           "."],     // Automatically insert decimal
-        [/(?<=^\d*)\.\d+\./,              "."],     // Overwrite up to old decimal point
-        [/(?<=\..*)\./g,                  ""],      // Remove duplicate decimal points
-        [/^(?=\.)/,                       "0"],     // Prepend leading 0
-        [/^0(?=\d)/,                      ""],      // Don't allow tens digit to be 0
+        [/[^\d.]/g, ""],      // Remove invalid characters
+        [/(?<=^\d\d)(\d)(?<caret>)\./, ".$1"],   // Automatically type digits after decimal
+        [/(?<=^\d)(?<caret>)\d(?=\d\.)/, ""],      // Type over tens digit
+        [/(?<=^0)(?<caret>)\d(?=\.)/, ""],      // Type over ones digit with zero
+        [/(?<=^\d\d)(?<caret>)\d(?=\.)/, ""],      // Type over ones digit
+        [/(?<=^\d{0,2})$/, ".00"],   // Automatically append decimal
+        [/(?<=^\d+)(?=\d{2}$)/, "."],     // Automatically insert decimal
+        [/(?<=^\d*)\.\d+\./, "."],     // Overwrite up to old decimal point
+        [/(?<=\..*)\./g, ""],      // Remove duplicate decimal points
+        [/^(?=\.)/, "0"],     // Prepend leading 0
+        [/^0(?=\d)/, ""],      // Don't allow tens digit to be 0
         [/(?<caret>).(?=.*$(?<=\d{3}))/g, ""],      // Replace digit when over 2 decimal places
-        [/(?<caret>)(?=.*$(?<!\d{2}))/g,  "0"],     // Insert 0 when backspacing
-        [/$(?<!\d{2})/,                   "00"],    // Ensure 2 decimal places
-        [/(?<=^9)(?=\d)/,                 "0.00"],  // Cap to 90
-        [/(?<=\.\d{2,}).+$/,              ""]);     // Truncate to 2 decimal places
+        [/(?<caret>)(?=.*$(?<!\d{2}))/g, "0"],     // Insert 0 when backspacing
+        [/$(?<!\d{2})/, "00"],    // Ensure 2 decimal places
+        [/(?<=^9)(?=\d)/, "0.00"],  // Cap to 90
+        [/(?<=\.\d{2,}).+$/, ""]);     // Truncate to 2 decimal places
 
     return parseFloat(elem.value);
 }
 
-function removeCharAt(string, index)
-{
+function removeCharAt(string, index) {
     return string.slice(0, index) + string.slice(index + 1);
 }
 
-function splicedString(string, start, deleteCount, ...toInsert)
-{
+function splicedString(string, start, deleteCount, ...toInsert) {
     let result = string.slice(0, start) + toInsert.join("");
 
     if (deleteCount !== undefined)
@@ -837,33 +819,28 @@ function splicedString(string, start, deleteCount, ...toInsert)
         return result;
 }
 
-function emToPixels(elem, em)
-{
+function emToPixels(elem, em) {
     return em * parseFloat(elem.css("font-size"));
 }
 
-function formatCoordinate(x, y)
-{
+function formatCoordinate(x, y) {
     let angle = x == 0 && y == 0 ? 0 : Math.atan(Math.abs(y) / Math.abs(x)) * 180 / Math.PI;
     // Add space for negative sign
     let formatX = (x < 0 ? "" : " ") + (x / CLAMP_RADIUS).toFixed(4);
     let formatY = (y < 0 ? "" : " ") + (y / CLAMP_RADIUS).toFixed(4);
     let formatAngle = angle.toFixed(2);
-    return "(" + formatX + ", " + formatY +") " + formatAngle + "\xB0";
+    return "(" + formatX + ", " + formatY + ") " + formatAngle + "\xB0";
 }
 
-function isValidCoordinate(x, y)
-{
-    return x*x + y*y <= CLAMP_RADIUS * CLAMP_RADIUS;
+function isValidCoordinate(x, y) {
+    return x * x + y * y <= CLAMP_RADIUS * CLAMP_RADIUS;
 }
 
-function getDisplayRadius()
-{
+function getDisplayRadius() {
     return useGate ? GATE_RADIUS : CLAMP_RADIUS;
 }
 
-function getGateRadius(x, y)
-{
+function getGateRadius(x, y) {
     // Hey, how's it going. I'm Jack, and today, I'm here to tell you about the word "octagon".
     // Now, "octagon" is an amazing shape that has 8 fantastic sides and 8 awesome angles.
     // Here, let me show you. Oh no... OH MAN! I totally forgot to bring an octagon!
@@ -890,17 +867,17 @@ function getGateRadius(x, y)
 
     // Law of sines
     return GATE_RADIUS * Math.sin(halfInteriorAngle)
-                       / Math.sin(Math.PI - angle - halfInteriorAngle);
+        / Math.sin(Math.PI - angle - halfInteriorAngle);
 }
 
 function isVisibleCoordinateGATE(x, y) {
     GATE_RADIUS = actualGATE_RADIUS;
     CLAMPED_COLOR_MULT = 1.0 / 3.0;
     if (useGate) {
-        return x*x + y*y <= getGateRadius(x, y)**2;
+        return x * x + y * y <= getGateRadius(x, y) ** 2;
     } else {
-        return x*x + y*y <= CLAMP_RADIUS**2;
-}
+        return x * x + y * y <= CLAMP_RADIUS ** 2;
+    }
 }
 
 function isVisibleCoordinateFULLRANGE(x, y) {
@@ -909,7 +886,7 @@ function isVisibleCoordinateFULLRANGE(x, y) {
     if (useGate) {
         return true;
     } else {
-        return x*x + y*y <= CLAMP_RADIUS**2;
+        return x * x + y * y <= CLAMP_RADIUS ** 2;
     }
 }
 
@@ -921,10 +898,9 @@ function isVisibleCoordinate(x, y) {
     }
 }
 
-function clampCoordinates(x, y)
-{
+function clampCoordinates(x, y) {
     const clamp = (x, y, radius) => {
-        const magnitude = Math.sqrt(x*x + y*y);
+        const magnitude = Math.sqrt(x * x + y * y);
         const scale = Math.min(radius / magnitude, 1.0);
         return [Math.trunc(x * scale), Math.trunc(y * scale)]
     };
@@ -932,13 +908,11 @@ function clampCoordinates(x, y)
     return clamp(...clamp(x, y, gateRadius), CLAMP_RADIUS);
 }
 
-function isRimCoordinate(x, y)
-{
+function isRimCoordinate(x, y) {
     return !isValidCoordinate(Math.abs(x) + 1, Math.abs(y) + 1);
 }
 
-function isDesyncCoordinate(x, y)
-{
+function isDesyncCoordinate(x, y) {
     let mulX = x > 0 ? 127 : 128;
     let mulY = y > 0 ? 127 : 128;
     let popoX = Math.abs(x / CLAMP_RADIUS);
@@ -982,8 +956,7 @@ function isDesyncCoordinate(x, y)
     return false;
 }
 
-function getCoordinateStyle(unclampedX, unclampedY)
-{
+function getCoordinateStyle(unclampedX, unclampedY) {
     if (!isVisibleCoordinate(unclampedX, unclampedY) || (unclampedX == 0 && unclampedY == 0))
         return ["black", "black"];
 
@@ -1019,7 +992,7 @@ function getCoordinateStyle(unclampedX, unclampedY)
 
     if (x != unclampedX || y != unclampedY) {
         for (let j = 0; j < 3; j++) {
-            fill[j]   *= CLAMPED_COLOR_MULT;
+            fill[j] *= CLAMPED_COLOR_MULT;
             stroke[j] *= CLAMPED_COLOR_MULT;
         }
     }
@@ -1030,8 +1003,7 @@ function getCoordinateStyle(unclampedX, unclampedY)
     ];
 }
 
-function drawCoordinate(x, y)
-{
+function drawCoordinate(x, y) {
     if (!isVisibleCoordinate(x, y))
         return;
 
@@ -1043,21 +1015,19 @@ function drawCoordinate(x, y)
         fromCenter: false,
         x: (x + getDisplayRadius()) * CANVAS_SCALE + GRID_LINE_WIDTH * 1.5,
         y: (getDisplayRadius() - y) * CANVAS_SCALE + GRID_LINE_WIDTH * 1.5,
-        width:  CANVAS_SCALE - GRID_LINE_WIDTH,
+        width: CANVAS_SCALE - GRID_LINE_WIDTH,
         height: CANVAS_SCALE - GRID_LINE_WIDTH,
         strokeWidth: GRID_LINE_WIDTH
     });
 }
 
-function drawStickMap()
-{
+function drawStickMap() {
     drawX = -getDisplayRadius();
     drawY = -getDisplayRadius();
     requestAnimationFrame(drawFrame);
 }
 
-function drawFrame(timestamp)
-{
+function drawFrame(timestamp) {
     while (drawX <= getDisplayRadius()) {
         while (drawY <= getDisplayRadius()) {
             drawCoordinate(drawX, drawY);
@@ -1078,25 +1048,22 @@ function drawFrame(timestamp)
         let loadingScreen = $("#loading-screen");
         loading = false;
         loadingScreen.css("pointer-events", "none");
-        loadingScreen.animate({opacity: 0.0}, 100, loadingScreen.remove);
+        loadingScreen.animate({ opacity: 0.0 }, 100, loadingScreen.remove);
     }
 }
 
-function addRegion()
-{
+function addRegion() {
     regions.push(new Region(selectedRegion));
     updateJson();
     repositionRegions();
 }
 
-function updateJson()
-{
+function updateJson() {
     if (showingJson)
         $("#json-input").val(JSON.stringify(regions, null, 4));
 }
 
-function toggleJson()
-{
+function toggleJson() {
     showingJson = !showingJson;
 
     if (showingJson) {
@@ -1110,8 +1077,7 @@ function toggleJson()
     }
 }
 
-function toggleGate()
-{
+function toggleGate() {
     useGate = !useGate;
     updateCanvasSize();
     drawStickMap();
@@ -1134,8 +1100,7 @@ function toggleSelection() {
     useSelection = !useSelection
 }
 
-function updateCanvasSize()
-{
+function updateCanvasSize() {
     canvasImageSize = (getDisplayRadius() * 2 + 1) * CANVAS_SCALE + GRID_LINE_WIDTH * 2;
 
     canvas.prop("width", canvasImageSize);
@@ -1148,8 +1113,7 @@ function updateCanvasSize()
     });
 }
 
-function repositionRegions(exclude=null, interpolate=true)
-{
+function repositionRegions(exclude = null, interpolate = true) {
     let top = 0;
     for (let i = regions.length - 1; i >= 0; i--) {
         if (regions[i] == exclude) {
@@ -1162,8 +1126,7 @@ function repositionRegions(exclude=null, interpolate=true)
     }
 }
 
-$(function()
-{
+$(function () {
     template = $("#region-template").contents().filter(".region-container");
     canvas = $("canvas");
     updateCanvasSize();
@@ -1176,12 +1139,11 @@ $(function()
     let minRegionListWidth = emToPixels(body, 30);
     let minRegionListHeight = emToPixels(body, 25);
 
-    function updateVerticalMode()
-    {
+    function updateVerticalMode() {
         let windowWidth = window.innerWidth;
         let windowHeight = window.innerHeight;
-        let canvasSizeHorz = Math.min(windowHeight, windowWidth  - minRegionListWidth);
-        let canvasSizeVert = Math.min(windowWidth,  windowHeight - minRegionListHeight);
+        let canvasSizeHorz = Math.min(windowHeight, windowWidth - minRegionListWidth);
+        let canvasSizeVert = Math.min(windowWidth, windowHeight - minRegionListHeight);
         let canvasSize = Math.max(canvasSizeHorz, canvasSizeVert);
         let baseMinCanvasSize = canvasImageSize * MIN_CANVAS_SCALE;
         let minCanvasSize = Math.min(baseMinCanvasSize, Math.min(windowWidth, windowHeight));
@@ -1221,8 +1183,7 @@ $(function()
         }
     }
 
-    function updateCoordinateDisplay()
-    {
+    function updateCoordinateDisplay() {
         let scale = canvas.innerHeight() / canvasImageSize;
 
         let unclampedX = Math.floor(mouseX / scale / CANVAS_SCALE - getDisplayRadius());
@@ -1237,16 +1198,16 @@ $(function()
         let pixelX = (x + getDisplayRadius()) * CANVAS_SCALE + GRID_LINE_WIDTH * 2;
         let pixelY = (getDisplayRadius() - y) * CANVAS_SCALE + GRID_LINE_WIDTH * 2;
         let offsetX = Math.round(canvas.offset().left + pixelX * scale);
-        let offsetY = Math.round(canvas.offset().top  + pixelY * scale);
+        let offsetY = Math.round(canvas.offset().top + pixelY * scale);
         coordinateSquare.css("left", offsetX);
         coordinateSquare.css("top", offsetY);
 
         let textX = offsetX + emToPixels(coordinateText, 1.0);
         let textY = offsetY + emToPixels(coordinateText, 1.0);
         let edgeX = canvasContainer.offset().left + canvasContainer.innerWidth();
-        let edgeY = canvasContainer.offset().top  + canvasContainer.innerHeight();
+        let edgeY = canvasContainer.offset().top + canvasContainer.innerHeight();
         coordinateText.css("left", Math.min(textX, edgeX - coordinateText.outerWidth()));
-        coordinateText.css("top",  Math.min(textY, edgeY - coordinateText.outerHeight()));
+        coordinateText.css("top", Math.min(textY, edgeY - coordinateText.outerHeight()));
     }
 
     canvasContainer.mousemove(event => {
@@ -1261,7 +1222,7 @@ $(function()
         updateCoordinateDisplay();
     });
 
-    $("#json-input").on("input", function() {
+    $("#json-input").on("input", function () {
         let newRegions;
 
         try {
@@ -1277,6 +1238,18 @@ $(function()
         repositionRegions(null, false);
         drawStickMap();
     });
+
+    createDropdown();
+
+    $('#region-select').on("change", function () {
+        var selectedOption = $("#region-select").prop("selectedIndex");
+        const selectedRegion = regionArray[selectedOption];
+        $('#region-list').empty();
+        regions = [new Region(selectedRegion)];
+        repositionRegions(null, false);
+        drawStickMap();
+        $('#region-select').prop('selectedIndex', -1);
+    })
 
     updateVerticalMode();
     drawStickMap();
