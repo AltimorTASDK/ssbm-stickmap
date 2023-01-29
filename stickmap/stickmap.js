@@ -581,7 +581,7 @@ class Region
         this.#updateColorSquare();
         this.#updateColorPicker();
         this.#updateColorHex();
-        this.quadrants.forEach((v, i) => this.#element.find(`#quadrant${i + 1}`).val(v));
+        this.quadrants.forEach((v, i) => this.#element.find(`#quadrant${i + 1}`).prop("checked", v));
         this.#element.find("#display-mode").val(this.displayMode);
         this.#element.find("#x-min").val(formatCoord(this.minX));
         this.#element.find("#x-max").val(formatCoord(this.maxX));
@@ -1023,17 +1023,17 @@ function toggleJson() {
     }
 }
 
-function toggleGate() {
+function toggleExpandedMode() {
     useGate = !useGate;
     updateCanvasSize();
     drawStickMap();
 }
 
-function toggleFullRange() {
+function toggleGateOrFullRange() {
     useGate = true;
     useFullRange = !useFullRange;
     if (useFullRange === true) {
-        toggleGate();
+        toggleExpandedMode();
     } else {
         updateCanvasSize();
         drawStickMap();
@@ -1191,8 +1191,8 @@ $(function () {
         drawStickMap();
         $('#region-select').prop('selectedIndex', -1);
     })
-
     updateVerticalMode();
     drawStickMap();
     addRegion();
+
 });
