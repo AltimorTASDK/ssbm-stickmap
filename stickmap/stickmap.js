@@ -40,8 +40,6 @@ let useGate = false;
 
 let useFullRange = true;
 
-let useSelection = false;
-
 var selectedRegion = [];
 
 let regions = [];
@@ -99,8 +97,6 @@ var regionArray = [
         magnitudeMax: 80
     }
 ]
-
-
 
 /*Selection Functions*/
 
@@ -1096,10 +1092,6 @@ function toggleFullRange() {
     drawStickMap();
 }
 
-function toggleSelection() {
-    useSelection = !useSelection
-}
-
 function updateCanvasSize() {
     canvasImageSize = (getDisplayRadius() * 2 + 1) * CANVAS_SCALE + GRID_LINE_WIDTH * 2;
 
@@ -1244,9 +1236,8 @@ $(function () {
     $('#region-select').on("change", function () {
         var selectedOption = $("#region-select").prop("selectedIndex");
         const selectedRegion = regionArray[selectedOption];
-        $('#region-list').empty();
-        regions = [new Region(selectedRegion)];
-        repositionRegions(null, false);
+        regions.push(new Region(selectedRegion));
+        repositionRegions(null, true);
         drawStickMap();
         $('#region-select').prop('selectedIndex', -1);
     })
