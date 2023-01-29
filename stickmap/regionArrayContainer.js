@@ -1,3 +1,4 @@
+//SSBM Regions Go Here!
 /*********************************************************************************************************************************************************************************************
 //*****SSSSSS**********SSSSSS*******BBBBBBBBBBB*****BMMMMM******MMMMMM**********RRRRRRRRRRR******EEEEEEEEEEEEE********GGGGGGG******GIII********OOOOOO********NNNN******NNNN******SSSSSSS******
 //***SSSSSSSSSS******SSSSSSSSSS*****BBBBBBBBBBBBB***BMMMMMM*****MMMMMM**********RRRRRRRRRRRRR****EEEEEEEEEEEEE*****GGGGGGGGGGGG****GIII******OOOOOOOOOO******NNNNN*****NNNN****SSSSSSSSSSS****
@@ -18,6 +19,7 @@
 //***SSSSSSSSSS******SSSSSSSSSS*****BBBBBBBBBBBBB***BMMMM**MMMMM**MMMM**********RRRR******RRRRR**EEEEEEEEEEEEE*****GGGGGGGGGGGG****GIII******OOOOOOOOOO******NNNN*****NNNNN*****SSSSSSSSSS****
 //*****SSSSSS**********SSSSSS*******BBBBBBBBBBBB****BMMMM**MMMM***MMMM**********RRRR******RRRRR**EEEEEEEEEEEEE********GGGGGG*******GIII********OOOOOO********NNNN*****NNNNN******SSSSSSS******
 //*******************************************************************************************************************************************************************************************/
+//SSBM Regions Go Here!
 
 const regionArray = [
     {
@@ -45,7 +47,7 @@ const regionArray = [
         magnitudeMax: 80
     },
     {
-        name: `Baba Booey`,
+        name: `U-Tilt during Wait`,
         color: [
             255,
             255,
@@ -53,17 +55,17 @@ const regionArray = [
             255
         ],
         quadrants: [
-            false,
-            false,
             true,
-            true
+            true,
+            false,
+            false
         ],
         displayMode: 0,
-        minX: 55,
-        minY: 44,
-        maxX: 88,
-        maxY: 88,
-        angleMin: 0.00,
+        minX: 0,
+        minY: 23,
+        maxX: 80,
+        maxY: 52,
+        angleMin: 50.00,
         angleMax: 90.00,
         magnitudeMin: 0,
         magnitudeMax: 80
