@@ -1187,6 +1187,7 @@ $(function () {
         var selectedOption = $("#region-select").prop("selectedIndex");
         const selectedRegion = regionArray[selectedOption];
         regions.push(new Region(selectedRegion));
+        updateJSON();
         repositionRegions(null, true);
         drawStickMap();
         $('#region-select').prop('selectedIndex', -1);
