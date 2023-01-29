@@ -19,6 +19,7 @@ body {
     margin: 0;
     overflow: hidden;
     display: flex;
+    height: 100vh;
 }
 
 canvas {
