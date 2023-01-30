@@ -1030,14 +1030,8 @@ function toggleExpandedMode() {
 }
 
 function toggleGateOrFullRange() {
-    useGate = true;
+    useGate = false;
     useFullRange = !useFullRange;
-    if (useFullRange === true) {
-        toggleExpandedMode();
-    } else {
-        updateCanvasSize();
-        drawStickMap();
-    }
     updateCanvasSize();
     drawStickMap();
 }
@@ -1078,7 +1072,7 @@ $(function () {
     let coordinateSquare = $("#coordinate-square");
     let coordinateText = $("#coordinate-text");
     let body = $("body");
-    let minRegionListWidth = emToPixels(body, 30);
+    let minRegionListWidth = emToPixels(body, 38.5);
     let minRegionListHeight = emToPixels(body, 25);
 
     function updateVerticalMode() {
@@ -1187,7 +1181,7 @@ $(function () {
         var selectedOption = $("#region-select").prop("selectedIndex");
         const selectedRegion = regionArray[selectedOption];
         regions.push(new Region(selectedRegion));
-        updateJSON();
+        updateJson();
         repositionRegions(null, true);
         drawStickMap();
         $('#region-select').prop('selectedIndex', -1);
