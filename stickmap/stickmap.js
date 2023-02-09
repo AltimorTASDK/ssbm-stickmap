@@ -1180,6 +1180,12 @@ $(function () {
     $('#region-select').on("change", function () {
         var selectedOption = $("#region-select").prop("selectedIndex");
         const selectedRegion = regionArray[selectedOption];
+        selectedRegion.color = [
+            Math.floor(Math.random() * 256),
+            Math.floor(Math.random() * 256),
+            Math.floor(Math.random() * 256),
+            255
+        ];
         regions.push(new Region(selectedRegion));
         updateJson();
         repositionRegions(null, true);
