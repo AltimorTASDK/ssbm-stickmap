@@ -1,0 +1,35 @@
+[debug] [2023-02-01T01:08:21.245Z] ----------------------------------------------------------------------
+[debug] [2023-02-01T01:08:21.247Z] Command:       /home/jeremy/.nvm/versions/node/v18.12.1/bin/node /home/jeremy/.nvm/versions/node/v18.12.1/bin/firebase deploy
+[debug] [2023-02-01T01:08:21.248Z] CLI Version:   11.16.0
+[debug] [2023-02-01T01:08:21.248Z] Platform:      linux
+[debug] [2023-02-01T01:08:21.248Z] Node Version:  v18.12.1
+[debug] [2023-02-01T01:08:21.248Z] Time:          Tue Jan 31 2023 20:08:21 GMT-0500 (Eastern Standard Time)
+[debug] [2023-02-01T01:08:21.249Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2023-02-01T01:08:21.321Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2023-02-01T01:08:21.322Z] > authorizing via signed-in user (jfb112697@gmail.com)
+[debug] [2023-02-01T01:08:21.322Z] [iam] checking project marp-e3fcf for permissions ["firebase.projects.get","firebasehosting.sites.update"]
+[debug] [2023-02-01T01:08:21.324Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/marp-e3fcf:testIamPermissions [none]
+[debug] [2023-02-01T01:08:21.324Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/marp-e3fcf:testIamPermissions x-goog-quota-user=projects/marp-e3fcf
+[debug] [2023-02-01T01:08:21.324Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/marp-e3fcf:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2023-02-01T01:08:21.550Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/marp-e3fcf:testIamPermissions 200
+[debug] [2023-02-01T01:08:21.551Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/marp-e3fcf:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2023-02-01T01:08:21.552Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/marp-e3fcf [none]
+[debug] [2023-02-01T01:08:21.848Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/marp-e3fcf 200
+[debug] [2023-02-01T01:08:21.848Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/marp-e3fcf {"projectId":"marp-e3fcf","projectNumber":"182891563680","displayName":"marp","name":"projects/marp-e3fcf","resources":{"hostingSite":"marp-e3fcf","storageBucket":"marp-e3fcf.appspot.com","locationId":"us-central"},"state":"ACTIVE","etag":"1_04f44552-0e3f-43cf-b5a2-2d26e9196726"}
+[info] 
+[info] === Deploying to 'marp-e3fcf'...
+[info] 
+[info] i  deploying hosting 
+[debug] [2023-02-01T01:08:21.853Z] >>> [apiv2][query] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/marp-e3fcf/versions [none]
+[debug] [2023-02-01T01:08:21.853Z] >>> [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/marp-e3fcf/versions {"status":"CREATED","labels":{"deployment-tool":"cli-firebase"}}
+[debug] [2023-02-01T01:08:22.579Z] <<< [apiv2][status] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/marp-e3fcf/versions 200
+[debug] [2023-02-01T01:08:22.579Z] <<< [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/marp-e3fcf/versions {"name":"projects/182891563680/sites/marp-e3fcf/versions/f03e5e19be8f60e4","status":"CREATED","config":{},"labels":{"deployment-tool":"cli-firebase"}}
+[info] i  hosting[marp-e3fcf]: beginning deploy... 
+[info] i  hosting[marp-e3fcf]: found 6 files in stickmap 
+[debug] [2023-02-01T01:08:22.585Z] [hosting] uploading with 200 concurrency
+[debug] [2023-02-01T01:08:22.586Z] [hosting] hash cache [c3RpY2ttYXA] not populated
+[debug] [2023-02-01T01:08:22.637Z] [hosting] hash cache [c3RpY2ttYXA] stored for 6 files
+[debug] [2023-02-01T01:08:22.638Z] [hosting][hash queue][FINAL] {"max":46,"min":15,"avg":22.833333333333332,"active":0,"complete":6,"success":6,"errored":0,"retried":0,"total":6,"elapsed":51}
+[debug] [2023-02-01T01:08:22.638Z] >>> [apiv2][query] POST https://firebasehosting.googleapis.com/v1beta1/projects/182891563680/sites/marp-e3fcf/versions/f03e5e19be8f60e4:populateFiles [none]
+[debug] [2023-02-01T01:08:22.638Z] >>> [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/182891563680/sites/marp-e3fcf/versions/f03e5e19be8f60e4:populateFiles {"files":{"/regionArrayContainer.js":"b2a800e857d32a424a705c78f80f445d52a496fa580655a81ace25b66259aacf","/stickmap.css":"4d8df14bc693913c3b55d8d3c6f697fd7d79fd098bc7978a24df149fd51de07d","/index.html":"2f03007cc3ecb8cd14a54fd3c786c2ce6af57711511e16d9cf5adff201de210a","/stickmap.js":"9d7406e324d88721ea8f561d14222a35d5ca362bcae9d1613de48737427d7acd","/lib/jcanvas.min.js":"0a30fe5597802b91f88b373d8d50b5b8c7ca5e5245dded694fcd3bf32d317558","/lib/jquery.min.js":"f4a93cf3834c5f3bbbab2ba619425fb1415050a847f5bc12cd6b0bab5e68074e"}}

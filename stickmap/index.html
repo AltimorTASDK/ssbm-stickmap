@@ -3,6 +3,7 @@
         <title>Melee Stick Coordinate Visualizer</title>
         <script src="lib/jquery.min.js"></script>
         <script src="lib/jcanvas.min.js"></script>
+        <script src="regionArrayContainer.js"></script>
         <script src="stickmap.js"></script>
         <link rel="stylesheet" href="stickmap.css"/>
     </head>
@@ -80,18 +81,34 @@
         </div>
         <div id="page-container" class="flex-container">
             <div id="user-input">
+                <p id="info-text" size="12">Welcome to Altimor's StickMap!<br /><br />This program is for viewing Analog Stick Coordinate/Angle Regions for Mechanics in Super Smash Bros. Melee.<br /><br />If you would like to help us document any StickMap Regions we don't already have, visit our <a href="https://discord.gg/yeBC66SCNF" target="_blank">Discord Server.</a><br />To view the source code, and forks of this program, here's a link to the <a href="https://github.com/AltimorTASDK/ssbm-stickmap" target="_blank" >GitHub Repository.</a><br /><br />Click on the 4 Quadrant Squares in any region to see the Analog Stick Coordinate Plane fill in the values that match the criteria in the input fields within the active quadrants.<br />Input values that round to the nearest multiple of 0.0125 inside the MinX, MaxX, MinY, MaxY, MagnitudeMin, and MagnitudeMax fields;<br />Input values less than or equal to 90.00 into the AngleMin and AngleMax fields.<br />The Color format is "RRGGBBAA" in Hexidecimal, where RR is Red, GG is Green, BB is Blue, and AA is Alpha/Transparency.</p>
+                    <button id="remove-button" onclick="removeWelcomeText()">Remove Welcome Text</button>
+                    <script>
+                      function removeWelcomeText() {
+                        var infoText = document.getElementById("info-text");
+                        var removeButton = document.getElementById("remove-button");
+                        infoText.parentNode.removeChild(infoText);
+                        removeButton.parentNode.removeChild(removeButton);
+                      }
+                    </script>
                 <div id="top-bar">
                     <div class="labeled-button" onclick="addRegion()">
                         <div class="button add-button"><span>+</span></div>
                         <label>Add New Region</label>
                     </div>
+                    <label for="region-select">Selection:</label>
+                        <select id="region-select" name="region-select"></select>
                     <div class="labeled-button" onclick="toggleJson()">
                         <div class="button json-toggle"><span>{ }</span></div>
                         <label>Toggle JSON</label>
                     </div>
-                    <div class="labeled-button" onclick="toggleGate()">
+                    <div class="labeled-button" onclick="toggleExpandedMode()">
                         <div class="button gate-toggle"><div><div></div></div></div>
-                        <label>Toggle Gate</label>
+                        <label>Toggle Expanded Mode</label>
+                    </div>
+                    <div class="labeled-button" onclick="toggleGateOrFullRange()">
+                        <div class="button range-toggle"><div><div></div></div></div>
+                        <label>Full Range or OctoGate</label>
                     </div>
                 </div>
                 <div id="region-list-container">
