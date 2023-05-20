@@ -103,12 +103,16 @@
                         <label>Toggle JSON</label>
                     </div>
                     <div class="labeled-button" onclick="toggleExpandedMode()">
-                        <div class="button gate-toggle"><div><div></div></div></div>
+                        <div class="button gate-toggle"><span>~</span></div>
                         <label>Toggle Expanded Mode</label>
                     </div>
                     <div class="labeled-button" onclick="toggleGateOrFullRange()">
-                        <div class="button range-toggle"><div><div></div></div></div>
+                        <div class="button range-toggle"><span>~</span></div>
                         <label>Full Range or OctoGate</label>
+                    </div>
+                    <div class="labeled-button" onclick="downloadCanvasPNG()">
+                        <div class="button download-canvas-PNG"><span>~</span></div>
+                        <label>Download Canvas PNG</label>
                     </div>
                 </div>
                 <div id="region-list-container">
@@ -121,7 +125,7 @@
                 <div id="coordinate-square"><div id="coordinate-square-inner"></div></div>
                 <div id="coordinate-text"></div>
                 <div id="canvas-centered">
-                    <canvas>Your browser is old as shit</canvas>
+                    <canvas id="the-canvas">Your browser is old as shit</canvas>
                 </div>
             </div>
         </div>
