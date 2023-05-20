@@ -48,6 +48,31 @@ let canvas = null;
 
 let canvasImageSize;
 
+/*Download Function*/
+
+function downloadCanvasPNG() {
+    // Find the canvas element by its ID
+    var canvas = document.getElementById("the-canvas");
+
+    // If the canvas element is not found, print an error message and exit the function
+    if (!canvas) {
+        console.error("Cannot find a canvas element with the ID 'the-canvas'");
+        return;
+    }
+
+    // Create an 'a' element
+    var link = document.createElement('a');
+
+    // Set the download attribute of the 'a' element to specify the file name
+    link.download = 'canvas.png';
+
+    // Convert the canvas to a PNG data URL and set it as the 'a' element's href
+    link.href = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
+
+    // Simulate a click on the 'a' element to start the download
+    link.click();
+}
+
 /*Selection Functions*/
 
 function createDropdown() {
