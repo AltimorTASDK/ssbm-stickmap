@@ -1203,20 +1203,21 @@ $(function () {
     createDropdown();
 
     $('#region-select').on("change", function () {
-        var selectedOption = $("#region-select").prop("selectedIndex");
-        const selectedRegion = regionArray[selectedOption];
-        selectedRegion.color = [
-            Math.floor(Math.random() * 256),
-            Math.floor(Math.random() * 256),
-            Math.floor(Math.random() * 256),
-            255
-        ];
-        regions.push(new Region(selectedRegion));
-        updateJson();
-        repositionRegions(null, true);
-        drawStickMap();
-        $('#region-select').prop('selectedIndex', -1);
+            var selectedOption = $("#region-select").prop("selectedIndex") - 1;
+            const selectedRegion = regionArray[selectedOption];
+            selectedRegion.color = [
+                Math.floor(Math.random() * 256),
+                Math.floor(Math.random() * 256),
+                Math.floor(Math.random() * 256),
+                255
+            ];
+            regions.push(new Region(selectedRegion));
+            updateJson();
+            repositionRegions(null, true);
+            drawStickMap();
+            $('#region-select').val('');
     })
+    $('#region-select').val('');
     updateVerticalMode();
     drawStickMap();
     addRegion();
