@@ -1,5 +1,5 @@
 # ssbm-stickmap
-A web app (created by AltimorTASDK) for creating diagrams of Super Smash Bros. Melee's analog stick input logic.
+A web app (created by [AltimorTASDK](https://github.com/AltimorTASDK)) for creating diagrams of Super Smash Bros. Melee's analog stick input logic.
 
 Discord Server: https://discord.gg/yeBC66SCNF
 
