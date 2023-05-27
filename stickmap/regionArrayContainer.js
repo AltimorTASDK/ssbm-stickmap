@@ -135,8 +135,8 @@ const regionArray = [
         minY: 23,
         maxX: 80,
         maxY: 52,
-        angleMin: 0,
-        angleMax: 50,
+        angleMin:50,
+        angleMax: 90,
         magnitudeMin: 0,
         magnitudeMax: 80
     },
