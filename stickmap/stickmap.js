@@ -465,15 +465,16 @@ class Region
             return false;
 
         if (this.displayMode == DisplayMode.Outline &&
-                this.#containsCoordinate(x + 1, y    ) &&
-                this.#containsCoordinate(x + 1, y + 1) &&
-                this.#containsCoordinate(x,     y + 1) &&
-                this.#containsCoordinate(x - 1, y + 1) &&
-                this.#containsCoordinate(x - 1, y    ) &&
-                this.#containsCoordinate(x - 1, y - 1) &&
-                this.#containsCoordinate(x,     y - 1) &&
-                this.#containsCoordinate(x + 1, y - 1))
+            this.#containsCoordinate(x + 1, y    ) &&
+            this.#containsCoordinate(x + 1, y + 1) &&
+            this.#containsCoordinate(x,     y + 1) &&
+            this.#containsCoordinate(x - 1, y + 1) &&
+            this.#containsCoordinate(x - 1, y    ) &&
+            this.#containsCoordinate(x - 1, y - 1) &&
+            this.#containsCoordinate(x,     y - 1) &&
+            this.#containsCoordinate(x + 1, y - 1)) {
             return false;
+        }
 
         return this.#containsCoordinate(x, y);
     }
@@ -513,6 +514,16 @@ class Region
         return true;
     }
 
+    #angleDifference(x, y, angle)
+    {
+        return Math.abs(Math.atan(Math.abs(y) / Math.abs(x)) * 180 / Math.PI - angle);
+    }
+
+    #magnitudeDifference(x, y, magnitude)
+    {
+        return Math.abs(Math.sqrt(x**2 + y**2) - magnitude);
+    }
+
     #containsCoordinate(x, y)
     {
         if (!isValidCoordinate(x, y))
@@ -522,27 +533,64 @@ class Region
         if (!this.#matchesQuadrants(x, y))
             return false;
 
-        // Check bounds
         let absX = Math.abs(x);
         let absY = Math.abs(y);
+        let roundedX = absX > DEADZONE ? absX : 0;
+        let roundedY = absY > DEADZONE ? absY : 0;
 
+        // Check bounds
         if (absX < this.minX || absX > this.maxX)
             return false;
 
         if (absY < this.minY || absY > this.maxY)
             return false;
 
-        // Check angle
-        let roundedX = absX > DEADZONE ? absX : 0;
-        let roundedY = absY > DEADZONE ? absY : 0;
+        if (this.angleMin == this.angleMax && roundedX != 0 && roundedY != 0) {
+            // Show line of closest matches to angle
+            let angleDiff = this.#angleDifference(x, y, this.angleMin);
 
-        let angle = Math.atan(roundedY / roundedX) * 180 / Math.PI;
-        if (angle < this.angleMin || angle > this.angleMax)
-            return false;
+            if (this.angleMin >= 45) {
+                if (angleDiff > this.#angleDifference(x + 1, y, this.angleMin))
+                    return false;
+                if (angleDiff > this.#angleDifference(x - 1, y, this.angleMin))
+                    return false;
+            }
 
-        let magnitude = Math.sqrt(roundedX**2 + roundedY**2);
-        if (magnitude < this.magnitudeMin || magnitude > this.magnitudeMax)
-            return false;
+            if (this.angleMin <= 45) {
+                if (angleDiff > this.#angleDifference(x, y + 1, this.angleMin))
+                    return false;
+                if (angleDiff > this.#angleDifference(x, y - 1, this.angleMin))
+                    return false;
+            }
+        } else {
+            // Check angle
+            let angle = Math.atan(roundedY / roundedX) * 180 / Math.PI;
+            if (angle < this.angleMin || angle > this.angleMax)
+                return false;
+        }
+
+        if (this.magnitudeMin == this.magnitudeMax) {
+            // Show circle of closest matches to magnitude
+            let magnitudeDiff = this.#magnitudeDifference(x, y, this.magnitudeMin);
+
+            if (absX >= absY) {
+                if (magnitudeDiff > this.#magnitudeDifference(x + 1, y, this.magnitudeMin))
+                    return false;
+                if (magnitudeDiff > this.#magnitudeDifference(x - 1, y, this.magnitudeMin))
+                    return false;
+            }
+
+            if (absY >= absX) {
+                if (magnitudeDiff > this.#magnitudeDifference(x, y + 1, this.magnitudeMin))
+                    return false;
+                if (magnitudeDiff > this.#magnitudeDifference(x, y - 1, this.magnitudeMin))
+                    return false;
+            }
+        } else {
+            let magnitude = Math.sqrt(roundedX**2 + roundedY**2);
+            if (magnitude < this.magnitudeMin || magnitude > this.magnitudeMax)
+                return false;
+        }
 
         return true;
     }
