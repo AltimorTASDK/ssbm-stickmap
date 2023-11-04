@@ -808,12 +808,14 @@ function emToPixels(elem, em)
 
 function formatCoordinate(x, y)
 {
-    let angle = x == 0 && y == 0 ? 0 : Math.atan(Math.abs(y) / Math.abs(x)) * 180 / Math.PI;
+    let angle = Math.atan2(Math.abs(y), Math.abs(x)) * 180 / Math.PI;
+    let magnitude = Math.sqrt(x**2 + y**2) / CLAMP_RADIUS;
     // Add space for negative sign
     let formatX = (x < 0 ? "" : " ") + (x / CLAMP_RADIUS).toFixed(4);
     let formatY = (y < 0 ? "" : " ") + (y / CLAMP_RADIUS).toFixed(4);
-    let formatAngle = angle.toFixed(2);
-    return "(" + formatX + ", " + formatY +") " + formatAngle + "\xB0";
+    return `(${formatX}, ${formatY})\n` +
+           `Angle: ${angle.toFixed(4)}\xB0\n` +
+           `Magnitude: ${magnitude.toFixed(4)}`;
 }
 
 function isValidCoordinate(x, y)
