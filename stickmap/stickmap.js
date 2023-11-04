@@ -410,27 +410,25 @@ class Region
 
         // Coordinate input
         this.#element.find("#x-min").on("input", function() {
-            region.#changeProperty('minX', filterCoord(this));
+            region.#changeProperty('minX', Math.round(filterCoord(this)));
         });
 
         this.#element.find("#x-max").on("input", function() {
-            region.#changeProperty('maxX', filterCoord(this));
+            region.#changeProperty('maxX', Math.round(filterCoord(this)));
         });
 
         this.#element.find("#y-min").on("input", function() {
-            region.#changeProperty('minY', filterCoord(this));
+            region.#changeProperty('minY', Math.round(filterCoord(this)));
         });
 
         this.#element.find("#y-max").on("input", function() {
-            region.#changeProperty('maxY', filterCoord(this));
+            region.#changeProperty('maxY', Math.round(filterCoord(this)));
         });
 
         this.#element.find("#x-min").change(function() { roundCoord(this); });
         this.#element.find("#x-max").change(function() { roundCoord(this); });
         this.#element.find("#y-min").change(function() { roundCoord(this); });
         this.#element.find("#y-max").change(function() { roundCoord(this); });
-        this.#element.find("#magnitude-min").change(function() { roundCoord(this); });
-        this.#element.find("#magnitude-max").change(function() { roundCoord(this); });
 
         // Angle input
         this.#element.find("#angle-min").on("input", function() {
@@ -760,7 +758,7 @@ function filterCoord(elem)
         [/^1(?!\.0+$)/,                   "0"],    // Modulo 1 when setting fractional digits
         [/(?<=\.\d{4,}).+$/,              ""]);    // Truncate to 4 decimal places
 
-    return Math.round(parseFloat(elem.value) * CLAMP_RADIUS);
+    return parseFloat(elem.value) * CLAMP_RADIUS;
 }
 
 function filterAngle(elem)
