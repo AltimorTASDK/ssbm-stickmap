@@ -654,10 +654,7 @@ function roundCoord(elem)
 
 function parseColorHex(string)
 {
-    if (string.startsWith("#"))
-        string = string.slice(1);
-
-    return string.match(/../g).map(octet => parseInt(octet, 16));
+    return string.match(/(?!^#)../g).map(octet => parseInt(octet, 16));
 }
 
 function parseReplacementString(match, replacement)
